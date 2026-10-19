@@ -1,0 +1,608 @@
+/* Leaflet 1.9.4 core styles (inlined so no external CSS is needed) */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;font-family:inherit;outline-offset:1px}
+.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{user-select:none;-webkit-user-drag:none}
+.leaflet-tile::selection{background:transparent}
+.leaflet-container img.leaflet-tile,.leaflet-container .leaflet-marker-icon{max-width:none!important;max-height:none!important;width:auto;padding:0}
+.leaflet-container.leaflet-touch-zoom{touch-action:pan-x pan-y}
+.leaflet-container.leaflet-touch-drag{touch-action:none;touch-action:pinch-zoom}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{touch-action:none}
+/* Leaflet's plus-lighter blending shows bright seams between tiles at fractional zoom levels (the default view is around 1.5); use normal blending */
+.leaflet-container img.leaflet-tile{mix-blend-mode:normal}
+.leaflet-tile{filter:inherit;visibility:hidden}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-box{width:0;height:0;box-sizing:border-box;z-index:800}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}
+.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto;float:left;clear:both}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}
+.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}
+.leaflet-fade-anim .leaflet-popup{opacity:0;transition:opacity .2s linear}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}
+.leaflet-zoom-animated{transform-origin:0 0}
+.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
+.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}
+.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}
+.leaflet-interactive{cursor:pointer}
+.leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-marker-draggable{cursor:grabbing}
+.leaflet-marker-icon,.leaflet-image-layer,.leaflet-pane>svg path{pointer-events:none}
+.leaflet-marker-icon.leaflet-interactive,.leaflet-image-layer.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:visiblePainted;pointer-events:auto}
+.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.4);border-radius:4px}
+.leaflet-bar a{background:var(--panel);color:var(--fg);border-bottom:1px solid var(--line);width:30px;height:30px;line-height:30px;display:block;text-align:center;text-decoration:none;font:bold 18px/30px "Lucida Console",Monaco,monospace}
+.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}
+.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}
+.leaflet-bar a.leaflet-disabled{cursor:default;opacity:.4}
+.leaflet-control-attribution{background:color-mix(in srgb,var(--panel) 80%,transparent);color:var(--muted);margin:0;padding:0 5px;font-size:11px;line-height:1.5}
+.leaflet-control-attribution a{color:var(--muted)}
+.leaflet-attribution-flag{display:none!important}
+.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}
+.leaflet-popup-content-wrapper{padding:1px;text-align:left;box-shadow:0 3px 14px rgba(0,0,0,.4)}
+.leaflet-popup-content{line-height:1.4;font-size:13px}
+.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none}
+.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;pointer-events:auto;transform:rotate(45deg);box-shadow:0 3px 14px rgba(0,0,0,.4)}
+.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:var(--muted);text-decoration:none;background:transparent}
+.leaflet-container a.leaflet-popup-close-button:hover{color:var(--fg)}
+.leaflet-tooltip{position:absolute;padding:4px 8px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;white-space:nowrap;user-select:none;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.2);font:500 12px var(--body)}
+.leaflet-tooltip-top{margin-top:-8px}
+.map-error{height:100%;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--muted)}
+
+/* UI accent is blue: --accent (text, borders and light tints are color-mixed from it), --accent-strong (selected button background).
+   Map colours stay independent: the active pin uses --pin-on (orange); air / rail / road / water each have their own colour */
+/* Layout: top nav + five pages (map #, photos #photos, film #film, articles #articles, transport #transport); city page #city-id, article page #city-id.2025-11-03 */
+:root{
+  --bg:#f3f2ef; --panel:#ffffff; --fg:#1d1c1a; --muted:#6f6b64; --line:#e0ddd6;
+  --accent:#1f63c4; --accent-strong:#163a6e; --accent-ink:#ffffff; --pin-on:#d9771f; --frame:#232120; --flight:#1e88e5;
+  --rail:#43a047; --road:#1a1a1a; --water:#3f51b5; --ocean:#d0cfd4;
+  --display:"Familjen Grotesk",system-ui,sans-serif;
+  --body:"Familjen Grotesk",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --nav-h:52px; --safe-top:env(safe-area-inset-top,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161514; --panel:#1f1e1c; --fg:#ece9e3; --muted:#9c978e; --line:#33312d;
+  --accent:#84b9f5; --accent-strong:#84b9f5; --accent-ink:#0c1a2e; --pin-on:#f0913a; --frame:#0d0c0b; --flight:#64b5f6; --rail:#8bd37f; --road:#e6e3dc; --water:#9aa8ff; --ocean:#232227; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161514; --panel:#1f1e1c; --fg:#ece9e3; --muted:#9c978e; --line:#33312d;
+  --accent:#84b9f5; --accent-strong:#84b9f5; --accent-ink:#0c1a2e; --pin-on:#f0913a; --frame:#0d0c0b; --flight:#64b5f6; --rail:#8bd37f; --road:#e6e3dc; --water:#9aa8ff; --ocean:#232227; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--body)}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- map view ---------- */
+#mapView{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - var(--nav-h) - var(--safe-top) - 1px);height:calc(100dvh - var(--nav-h) - var(--safe-top) - 1px)}  /* 1px is the nav bar's bottom border */
+aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:20px}
+.brand h1{font:700 28px/1.1 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.brand .src a{color:var(--accent);font-weight:600;text-decoration:none}
+.brand .src a:hover{text-decoration:underline}
+/* Random photo under the tagline; click to open its place. Dark placeholder until the image loads, then it fades in */
+.rphoto{display:block;position:relative;margin:12px 0 0;aspect-ratio:3/2;border-radius:8px;overflow:hidden;background:var(--frame);box-shadow:0 1px 4px rgba(0,0,0,.18);color:#f5efe6;text-decoration:none}
+/* Only the photo itself (> img): the flags in the caption are imgs too and must not be stretched */
+.rphoto > img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 35%;opacity:0;transition:opacity .4s,transform .35s}
+.rphoto > img.on{opacity:1}
+.rphoto:hover > img,.rphoto:focus-visible > img{transform:scale(1.04)}
+.rphoto .rcap{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;padding:26px 12px 10px;font:600 14px/1.3 var(--display);background:linear-gradient(transparent,rgba(0,0,0,.66))}
+.rphoto .rname{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rphoto .rgo{margin-left:auto;transition:transform .15s}
+.rphoto:hover .rgo,.rphoto:focus-visible .rgo{transform:translateX(3px)}
+.stats{display:flex;gap:18px;font:500 12px/1 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.stats b{display:block;font:700 22px/1.2 var(--display);color:var(--fg);letter-spacing:0}
+/* Continent heading: clickable, opens that continent */
+.region-head{display:flex;align-items:baseline;gap:8px;margin:0 0 6px;padding:8px 10px;border-radius:6px;text-decoration:none;font:700 17px/1.2 var(--display);color:var(--fg);background:color-mix(in srgb,var(--fg) 4%,transparent);transition:background .15s,color .15s}
+.region-head .rc{font:400 12px var(--mono);color:var(--muted)}
+.region-head .rc::before{content:"· "}
+.region-head .arr{margin-left:auto;color:var(--muted);transition:transform .15s,color .15s}
+a.region-head:hover,a.region-head:focus-visible{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+a.region-head:hover .arr,a.region-head:focus-visible .arr{color:var(--accent);transform:translateX(3px)}
+.region-head.current{background:none;padding-inline:4px}
+.region + .region{margin-top:18px}
+.all-back{display:inline-block;margin:0 0 12px;font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:5px 10px}
+.all-back:hover{color:var(--accent);border-color:var(--accent)}
+/* Continent chips at the top of the sidebar; scroll sideways on phones */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:-6px;flex-shrink:0}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex-shrink:0;font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.chips a:hover{color:var(--fg);border-color:var(--fg)}
+.chips a[aria-current]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-ink);font-weight:600}
+/* In a continent view, markers in other continents are dimmed */
+.pin.dim{opacity:.28}
+.pin.small.dim{opacity:.18}
+.pin.dim:hover{opacity:1}
+.region ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.region button{width:100%;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 4px;cursor:pointer}
+.region li:last-child button{border-bottom:1px solid var(--line)}
+/* Small places: indented under their parent, slightly smaller type */
+.region li.sub button{padding:6px 4px 6px 22px;position:relative}
+.region li.sub button::before{content:"";position:absolute;left:10px;top:0;bottom:50%;width:7px;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}
+.region li.sub .nm{font-size:13px;font-weight:500}
+.region li.sub .loc{font-size:11px}
+.region li.sub .flag{width:1.1em}
+.region button:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.nm{font-weight:600}
+.flag{width:1.25em;height:auto;aspect-ratio:4/3;object-fit:cover;vertical-align:-.12em;margin-right:.4em;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.flag + .flag{margin-left:-.15em}   /* two flags side by side (cross-border places) sit a little closer */
+/* State / canton flags (US states, Swiss cantons) are 20% smaller than country flags to show hierarchy; Swiss canton flags are square */
+.flag.sub{width:1em;vertical-align:-.06em}
+.flag.sub.sq{width:.75em;aspect-ratio:1/1}
+.loc{display:block;font:400 12px var(--display);color:var(--muted)}
+.cnt{font:400 12px var(--mono);color:var(--muted)}
+#map{height:100%;background:var(--ocean)}   /* same colour as the basemap ocean, so any exposed edge blends in */
+/* Layer toggles (top right of the map) */
+.flight-toggle{display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;box-shadow:0 1px 5px rgba(0,0,0,.2);font:500 13px var(--body);cursor:pointer;touch-action:manipulation}
+.flight-toggle .sw{position:relative;width:26px;height:14px;border-radius:7px;background:var(--line);transition:background .15s}
+.flight-toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--panel);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .15s}
+.flight-toggle[aria-pressed="true"] .sw{background:var(--flight)}
+.flight-toggle[aria-pressed="true"] .sw::after{transform:translateX(12px)}
+/* Airport codes at each end of a flight: dot on the airport, code below it so it stays clear of the city pins above */
+.apt{width:0!important;height:0!important;background:none;border:0;pointer-events:none}
+.apt i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;border-radius:50%;background:var(--flight);box-shadow:0 0 0 1.5px var(--panel)}
+.apt b{position:absolute;left:0;top:6px;transform:translateX(-50%);font:600 10px/1 var(--mono);letter-spacing:.04em;color:var(--flight);background:color-mix(in srgb,var(--panel) 85%,transparent);padding:2px 4px;border-radius:2px;white-space:nowrap}
+@media (pointer:coarse){.flight-toggle{height:44px;padding:0 14px}}
+
+/* City markers: teardrop pins. The outer 32×32 box is a transparent hit area (easy to tap on phones); the 16×22 pin sits bottom-centre and its tip is the coordinate */
+.pin{background:none;border:0;cursor:pointer}
+.pin-svg{position:absolute;overflow:visible;transform-origin:50% 100%;transition:transform .12s}
+.pin.big .pin-svg{left:6.5px;top:4.59px}      /* 19×26, tip at (16,30) of the hit area */
+.pin.small .pin-svg{left:9.5px;top:7.41px}     /* 13×18, tip at (16,25) of the hit area */
+.pin.small{opacity:.55;transition:opacity .12s}
+.pin.small:hover,.pin.small:focus-visible,.pin.small.on{opacity:1}
+.pin.small:hover .pin-svg,.pin.small:focus-visible .pin-svg,.pin.small.on .pin-svg{transform:scale(1.5)}
+.pin-svg path{fill:var(--fg);stroke:var(--panel);stroke-width:1;paint-order:stroke}
+.pin:hover .pin-svg,.pin:focus-visible .pin-svg,.pin.on .pin-svg{transform:scale(1.2)}
+.pin:hover .pin-svg path,.pin:focus-visible .pin-svg path,.pin.on .pin-svg path{fill:var(--pin-on)}
+.pin:focus-visible{outline:none}
+/* Zoomed far out (whole world on screen): smaller pins so the European cluster stays readable; app.js adds .far below zoom 1.6 */
+.far .pin-svg{transform:scale(.62)}
+.far .pin:hover .pin-svg,.far .pin:focus-visible .pin-svg,.far .pin.on .pin-svg{transform:scale(.8)}
+.far .pin.small:hover .pin-svg,.far .pin.small:focus-visible .pin-svg,.far .pin.small.on .pin-svg{transform:scale(.95)}
+
+.leaflet-popup-content-wrapper{background:var(--panel);color:var(--fg);border-radius:6px}
+.leaflet-popup-tip{background:var(--panel)}
+.leaflet-popup-content{margin:12px 14px;min-width:200px}
+.pop .thumb{height:96px;border-radius:4px;margin-bottom:10px;background-size:cover;background-position:center}
+.pop h3{margin:0;font:700 18px/1.2 var(--display)}
+.pop .coord{font:400 11px var(--mono);color:var(--muted);margin:2px 0 10px}
+.pop .pline{font-size:12px;color:var(--fg);margin-top:2px}
+.pop .pline + .coord{margin-top:0}
+/* Flight cards: same styling as city cards */
+.fcard .brand-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;min-height:40px}
+/* Logos are stored at 2× (96px tall) and shown at 48px; the white plate keeps dark logos readable in dark mode */
+.fcard .plate{display:inline-flex;align-items:center;background:#fff;border-radius:8px;padding:6px 10px;box-shadow:0 0 0 1px var(--line)}
+/* Every company logo uses the same box (sized to LATAM's logo); logos with other proportions are centred and padded */
+.fcard .plate img{display:block;width:160px;height:37px;object-fit:contain}
+.fcard .badge{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:36px;padding:0 10px;border-radius:8px;background:var(--flight);color:#fff;font:700 15px var(--mono);letter-spacing:.04em}
+.fcard{min-width:240px}
+.fcard .airline{font-size:12px;color:var(--muted);white-space:nowrap}
+.fcard h3{font:700 24px/1.1 var(--mono);letter-spacing:.02em}
+.fcard .coord{margin-bottom:6px}
+.fcard .meta{font:400 12px var(--mono);color:var(--fg)}
+.fcard .times{margin-top:4px;font:400 12px var(--mono);color:var(--muted)}
+.fcard .seat{margin-top:6px;font-size:12px}.fcard .seat b{font-family:var(--mono)}
+.fcard .note{margin:8px 0 0;padding-top:8px;border-top:1px solid var(--line);font-size:13px;color:var(--fg);white-space:pre-line}
+.go{display:inline-flex;align-items:center;gap:6px;background:var(--accent-strong);color:var(--accent-ink)!important;text-decoration:none;font-weight:600;font-size:13px;padding:7px 12px;border-radius:4px}
+
+/* ---------- city page ---------- */
+#page{padding-block:0 48px}
+.bar{position:sticky;top:calc(var(--nav-h) + var(--safe-top));z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar-in,.city-in{max-width:1180px;margin:0 auto;padding-inline:20px}
+.bar-in{display:flex;align-items:center;gap:12px;height:56px}
+.back{background:none;border:1px solid var(--line);border-radius:4px;padding:6px 12px;cursor:pointer;font-size:14px}
+.back:hover{border-color:var(--accent);color:var(--accent)}
+.crumb{font:400 12px var(--mono);color:var(--muted);margin-left:auto;text-align:right}
+.city-head{padding-block:40px 28px;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px}
+.city-head .eyebrow{font:500 12px var(--mono);color:var(--accent);letter-spacing:.1em;text-transform:uppercase}
+.city-head h2{font:700 clamp(40px,7vw,76px)/1 var(--display);margin:6px 0 0;letter-spacing:-.02em}
+.city-head .sub{color:var(--muted);margin:8px 0 0}
+.exif{font:400 12px/1.8 var(--mono);color:var(--muted);text-align:right}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.shot{position:relative;margin:0;background:var(--frame);border-radius:3px;overflow:hidden;cursor:zoom-in;aspect-ratio:3/2;max-width:100%;border:0;padding:0}
+.shot:nth-child(5n+1){grid-row:span 2;aspect-ratio:auto}
+.shot img,.shot .ph{width:100%;height:100%;object-fit:cover;display:block}
+.ph{display:flex;flex-direction:column;justify-content:flex-end;padding:14px;color:#f5efe6;text-align:left}
+.ph b{font:700 15px var(--display)}
+.ph code{font:400 11px var(--mono);opacity:.75;word-break:break-all}
+.shot .fn{position:absolute;left:8px;top:8px;font:500 10px var(--mono);color:#f5efe6;background:rgba(0,0,0,.45);padding:2px 6px;border-radius:2px}
+.note{margin-top:28px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;max-width:70ch}
+.empty{padding:48px 0;color:var(--muted);font-size:16px;border-block:1px solid var(--line);text-align:center}
+.note code{font:12px var(--mono);background:var(--panel);border:1px solid var(--line);padding:1px 5px;border-radius:3px}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:28px;flex-wrap:wrap}
+.nav button{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;cursor:pointer;text-align:left}
+.nav button:hover{border-color:var(--accent)}
+.nav small{display:block;font:400 11px var(--mono);color:var(--muted)}
+
+/* articles list on city page */
+.articles{margin-top:44px}
+.sec{font:600 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 6px}
+.sec span{color:var(--accent)}
+.articles ol{list-style:none;margin:0;padding:0}
+.articles a{display:grid;grid-template-columns:40px 1fr 96px;gap:16px;align-items:center;padding:16px 4px;border-bottom:1px solid var(--line);text-decoration:none}
+.articles li:first-child a{border-top:1px solid var(--line)}
+.articles a:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.articles a:hover b{color:var(--accent)}
+.ai{font:500 13px var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.at{min-width:0}
+.at b{display:block;font:700 20px/1.3 var(--display)}
+.at small{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac{width:96px;aspect-ratio:3/2;border-radius:3px;background-size:cover;background-position:center;background-color:var(--frame)}
+
+/* article page */
+.post .cover{display:block;width:100%;max-height:62vh;object-fit:cover}
+.post-in{max-width:680px;margin:0 auto;padding:40px 20px 0}
+.post .eyebrow{font:500 12px var(--mono);color:var(--accent);letter-spacing:.1em;text-transform:uppercase}
+.post h2{font:700 clamp(34px,6vw,56px)/1.1 var(--display);margin:8px 0 28px;letter-spacing:-.01em;text-wrap:balance}
+.post p{font-size:18px;line-height:1.85;margin:0 0 1.2em}
+.post-in h3{font:700 22px/1.35 var(--display);margin:1.6em 0 .6em}
+.nav a{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;text-decoration:none}
+.nav a:hover{border-color:var(--accent)}
+
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:1000;background:rgba(10,9,8,.94);display:flex;align-items:center;justify-content:center;padding:48px 16px}
+#lb .stage{max-width:min(1400px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
+#lb .stage > *{max-height:80vh;max-width:100%}
+#lb .stage .ph{width:min(900px,90vw);aspect-ratio:3/2;border-radius:3px}
+#lb .cap{font:400 12px var(--mono);color:#c9c3b8}
+#lb button{position:absolute;background:rgba(255,255,255,.08);border:0;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:20px}
+#lb .x{top:12px;right:12px}#lb .p{left:12px;top:50%}#lb .n{right:12px;top:50%}
+#lb .cap a{color:#f5efe6;margin-left:10px;text-decoration:none;border-bottom:1px solid rgba(245,239,230,.4)}
+#lb .cap a:hover{border-color:#f5efe6}
+
+/* Portrait phones: the map is a world-proportioned strip (app.js computes the ratio from the latitude band and writes --map-aspect), so the whole world fits on arrival;
+   the remaining height goes to the place list below. Landscape phones (also under 760px wide) use the side-by-side layout above */
+@media (max-width:760px) and (orientation:portrait){
+  #mapView{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  #map{height:auto;aspect-ratio:var(--map-aspect,1.6740)}
+  aside{order:2;border-right:0;border-top:1px solid var(--line);padding:18px 16px}
+  .leaflet-control-attribution{font-size:9px}
+}
+/* Portrait phones and short landscape screens: the random photo becomes a flatter 5:2 banner, leaving vertical space for the list */
+@media (max-width:760px) and (orientation:portrait), (max-height:520px) and (orientation:landscape){
+  .rphoto{margin-top:10px;aspect-ratio:5/2;border-radius:6px}
+  .rphoto .rcap{padding:18px 10px 8px;font-size:13px}
+}
+@media (max-width:760px){
+  .bar-in,.city-in{padding-inline:16px}
+  .exif{text-align:left}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .shot:nth-child(5n+1){grid-row:auto;aspect-ratio:3/2}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- top nav ---------- */
+.topbar{position:sticky;top:0;z-index:900;padding-top:var(--safe-top);background:color-mix(in srgb,var(--panel) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{height:var(--nav-h);display:flex;align-items:center;gap:16px;padding-inline:20px}
+.topbar .site{font:700 17px/1 var(--display);letter-spacing:-.01em;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.topbar nav{margin-left:auto;display:flex;gap:2px;flex-shrink:0}
+.topbar nav a{font-size:14px;text-decoration:none;color:var(--muted);padding:6px 10px;border-radius:4px;white-space:nowrap}
+.topbar nav a:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.topbar nav a[aria-current="page"]{color:var(--accent);font-weight:600;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+
+/* ---------- shared by the photos / articles / transport pages ---------- */
+.page-in{max-width:1180px;margin:0 auto;padding-inline:20px}
+.page-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 20px;padding-block:32px 20px}
+.page-head h2{font:700 clamp(32px,5vw,48px)/1 var(--display);margin:0;letter-spacing:-.02em}
+.page-head .sub{color:var(--muted);font-size:14px;margin:6px 0 0}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 14px;cursor:pointer;font-size:14px;touch-action:manipulation}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Photos: masonry, original aspect ratios */
+.masonry{columns:4 260px;column-gap:12px}
+.masonry figure{position:relative;margin:0 0 12px;break-inside:avoid;border-radius:3px;overflow:hidden;background:var(--frame);cursor:zoom-in}
+.masonry img{display:block;width:100%;height:auto;min-height:60px}
+.masonry figcaption{position:absolute;left:8px;bottom:8px;font:500 12px var(--body);color:#f5efe6;background:rgba(0,0,0,.5);padding:3px 8px;border-radius:3px;opacity:0;transition:opacity .15s;pointer-events:none}
+.masonry figure:hover figcaption,.masonry figure:focus-visible figcaption{opacity:1}
+@media (hover:none){.masonry figcaption{opacity:1}}
+
+/* Article list */
+.alist{list-style:none;margin:0;padding:0}
+.alist a{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:20px;align-items:center;padding:18px 4px;border-bottom:1px solid var(--line);text-decoration:none}
+.alist li:first-child a{border-top:1px solid var(--line)}
+.alist a:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.alist a:hover b{color:var(--accent)}
+.alist .ad{font:500 12px var(--mono);color:var(--accent)}
+.alist b{display:block;font:700 22px/1.3 var(--display);margin:2px 0}
+.alist .acity{font-size:13px;color:var(--muted)}
+.alist small{display:block;color:var(--muted);font-size:14px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alist .ac{width:120px}
+
+/* Transport list */
+.fsum{display:flex;flex-wrap:wrap;gap:28px;padding:0 0 8px;font:500 12px/1 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fsum b{display:block;font:700 26px/1.2 var(--display);color:var(--fg);letter-spacing:0;text-transform:none}
+.fyear{font:600 13px/1 var(--mono);letter-spacing:.12em;color:var(--muted);margin:28px 0 8px}
+.flist{list-style:none;margin:0;padding:0}
+.frow{width:100%;display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:16px;align-items:center;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:14px 4px;cursor:pointer}
+.flist li:last-child .frow{border-bottom:1px solid var(--line)}
+.frow:hover{background:color-mix(in srgb,var(--flight) 8%,transparent)}
+.frow .plate{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-radius:6px;padding:4px 6px;box-shadow:0 0 0 1px var(--line);max-width:96px}
+.frow .plate img{display:block;width:84px;height:20px;object-fit:contain}
+.frow .badge{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:30px;padding:0 8px;border-radius:6px;background:var(--flight);color:#fff;font:700 13px var(--mono)}
+.frow .fr-route{font:700 20px/1.2 var(--mono);letter-spacing:.02em}
+.frow .fr-city{font-size:13px;color:var(--muted)}
+.frow .fr-meta{font:400 12px/1.6 var(--mono);color:var(--muted);text-align:right}
+
+/* Phone width: keep the nav on one line with smaller type */
+@media (max-width:760px){
+  :root{--nav-h:46px}
+  .topbar-in{padding-inline:12px;gap:8px}
+  .topbar .site{font-size:14px}
+  .topbar nav a{font-size:13px;padding:6px 7px}
+  .page-in{padding-inline:16px}
+  .masonry{columns:2;column-gap:8px}.masonry figure{margin-bottom:8px}
+  .alist a{grid-template-columns:minmax(0,1fr) 84px;gap:12px}.alist .ac{width:84px}
+  .frow{grid-template-columns:64px 1fr;gap:10px}.frow .fr-meta{grid-column:2}
+  .fsum{gap:18px}
+  .frow .fr-meta{text-align:left}
+  .frow .plate{max-width:64px}.frow .plate img{width:52px;height:12px}
+  .alist b{font-size:18px}
+}
+@media (max-width:380px){
+  .topbar .site{font-size:13px}
+  .topbar nav a{font-size:12px;padding:5px 5px}
+}
+
+@media (max-width:760px){ .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:0 16px 2px} }
+
+/* ---------- transport: the four layer toggles on the map, mode icons, transport page ---------- */
+.layer-toggles{display:flex;flex-direction:column;gap:4px}
+.layer-toggles .flight-toggle{height:30px;padding:0 10px 0 8px;font-size:12px;gap:6px;justify-content:flex-start}
+.flight-toggle .micon{width:14px;height:14px}
+.flight-toggle[data-mode="rail"][aria-pressed="true"] .sw{background:var(--rail)}
+.flight-toggle[data-mode="drive"][aria-pressed="true"] .sw{background:var(--road)}
+.flight-toggle[data-mode="water"][aria-pressed="true"] .sw{background:var(--water)}
+@media (pointer:coarse){.layer-toggles .flight-toggle{height:36px;font-size:13px}}
+.micon{width:16px;height:16px;flex-shrink:0;vertical-align:-3px}
+.micon path{fill:currentColor}
+.micon.m-air{color:var(--flight)}.micon.m-rail{color:var(--rail)}.micon.m-drive{color:var(--road)}.micon.m-water{color:var(--water)}
+.micon.big{width:26px;height:26px}
+.micon.sm{width:14px;height:14px;margin-right:4px;vertical-align:-2px}
+.chips a[aria-current] .micon{color:inherit}
+.tchips{margin:0 0 18px}
+.trow{grid-template-columns:96px minmax(0,1fr) auto}
+.trow .tr-icon.has-logo{width:auto;height:auto;border-radius:0;background:none;justify-content:flex-start}
+.trow .tr-icon{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.rcard .brand-row{min-height:0}
+@media (max-width:760px){
+  .trow{grid-template-columns:64px 1fr}
+  .trow .tr-icon{width:34px;height:34px}.trow .micon.big{width:22px;height:22px}
+  .tchips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:0 16px 2px}
+}
+@media (max-width:760px){
+  /* the map is short on phones: toggles in a 2×2 grid, switch and icon only */
+  .layer-toggles{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .layer-toggles .flight-toggle{height:36px;padding:0 8px;gap:5px}
+  .layer-toggles .lbl{display:none}
+}
+/* On portrait phones the map is a thin strip: the four toggles go in one row along the top (no places north of 60°N), clear of the pins in the Americas and Europe */
+@media (max-width:760px) and (orientation:portrait){
+  .layer-toggles{display:flex;flex-direction:row;gap:3px}
+  .layer-toggles .flight-toggle{height:32px;padding:0 6px;gap:4px}
+  .layer-toggles .flight-toggle .sw{width:22px}
+  .layer-toggles .flight-toggle[aria-pressed="true"] .sw::after{transform:translateX(8px)}
+}
+/* Titles with several waypoints (e.g. a driving loop): a chain of names, smaller and allowed to wrap */
+.fcard h3.chain{font:700 17px/1.35 var(--display);letter-spacing:0}
+.frow .fr-route.chain{font:700 16px/1.35 var(--display);letter-spacing:0}
+
+/* ---------- film ---------- */
+/* Small FILM badge in the corner of film photos: photos page and lightbox */
+.film-tag{font:600 9px/1 var(--mono);letter-spacing:.12em;color:#f5efe6;background:rgba(0,0,0,.55);border:1px solid rgba(245,239,230,.35);padding:3px 5px 2px;border-radius:2px;pointer-events:none}
+.masonry figure > .film-tag{position:absolute;right:8px;top:8px}
+/* "Film" section on city pages: below the digital photos, grouped by roll, one strip per roll */
+.city-film{margin-top:44px}
+.city-film .sec{margin-bottom:14px}
+.croll{margin-bottom:24px}
+.croll-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:12px 0 10px;border-top:1px solid var(--line);margin-bottom:10px}
+.croll-head .roll-id{font:500 12px var(--mono);letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+.croll-info{font-size:14px;color:var(--fg)}
+.croll-go{margin-left:auto;font-size:13px;color:var(--muted);text-decoration:none;white-space:nowrap}
+.croll-go:hover{color:var(--accent)}
+/* Lightbox caption for film photos: stock · camera, plus two links */
+#lb .filmcap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 12px;max-height:none}
+#lb .filmcap .film-tag{position:static}
+#lb .filmcap a{margin-left:0}
+/* Film page: grouped by roll */
+.chip{font:inherit;font-size:13px;background:none;cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;white-space:nowrap;flex-shrink:0}
+.chip:hover{color:var(--fg);border-color:var(--fg)}
+.chip[aria-current]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-ink);font-weight:600}
+#filmFilters .tchips{margin-bottom:10px}
+.roll{margin-bottom:40px}
+.roll-head{display:grid;gap:4px;padding:18px 0 14px;border-top:1px solid var(--line);margin-bottom:14px}
+.roll-id{font:500 12px var(--mono);letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+.roll-id span{color:var(--muted);margin-left:12px;letter-spacing:.05em}
+.roll-head h3{font:700 clamp(22px,3vw,28px)/1.2 var(--display);margin:0;letter-spacing:-.01em}
+.roll-meta{margin:0;color:var(--muted);font-size:14px}
+.roll-cities{margin:2px 0 0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.roll-cities a{text-decoration:none;border-bottom:1px solid var(--line)}
+.roll-cities a:hover{color:var(--accent);border-color:var(--accent)}
+.roll-cities .flag{margin-right:.35em}
+.roll{scroll-margin-top:calc(var(--nav-h) + var(--safe-top) + 8px)}
+
+/* ---------- film page: the film cabinet (a row of film boxes under "N photos · N rolls", filters by stock) and the box beside each roll title ----------
+   ===== cabinet settings: tune everything here ===== */
+.film-page{
+  --cab-h:90px;              /* box height in the cabinet (width follows the image; text cards without an image use the same height) */
+  --cab-gap:24px;            /* gap between boxes */
+  --cab-lift:6px;            /* how far the selected box lifts */
+  --cab-hover-lift:3px;      /* how far a box lifts on hover */
+  --cab-fade:.4;             /* opacity of the other boxes once a stock is selected */
+  --roll-box-h:34px;         /* height of the box beside each roll title */
+}
+@media (max-width:760px){ .film-page{--cab-h:60px;--cab-gap:18px;--roll-box-h:26px} }
+/* ===== end of settings ===== */
+
+.cabinet{margin:2px 0 16px}
+/* One row of boxes that scrolls sideways when it doesn't fit; a thin shelf line and a faint shadow underneath scroll with it */
+.cab-row{--shelf-y:calc(var(--cab-lift) + 8px + var(--cab-h));display:flex;gap:var(--cab-gap);align-items:flex-start;
+  overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:calc(var(--cab-lift) + 8px) 2px 4px;
+  background:linear-gradient(var(--line),var(--line)) 0 var(--shelf-y) / 100% 1px repeat-x local,
+             linear-gradient(rgba(0,0,0,.07),rgba(0,0,0,0)) 0 calc(var(--shelf-y) + 1px) / 100% 9px repeat-x local}
+.cab-row::-webkit-scrollbar{display:none}
+.cab-box{flex:none;display:flex;flex-direction:column;align-items:center;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:center;cursor:pointer;
+  transition:opacity .25s}
+.box-art{display:flex;align-items:flex-end;justify-content:center;height:var(--cab-h);filter:drop-shadow(0 2px 2px rgba(0,0,0,.12));
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),filter .25s}
+.box-art picture,.roll-box picture{display:block;height:100%}
+.box-art img,.roll-box img{display:block;height:100%;width:auto;-webkit-user-drag:none;user-select:none}
+.cab-name{margin-top:10px;font-size:13px;font-weight:600;line-height:1.3;white-space:nowrap}
+.cab-count{font:400 11px/1.4 var(--mono);color:var(--muted);white-space:nowrap}
+@media (hover:hover){ .cab-box:hover .box-art{transform:translateY(calc(-1 * var(--cab-hover-lift)))} }
+.cab-box[aria-pressed="true"] .box-art{transform:translateY(calc(-1 * var(--cab-lift)));filter:drop-shadow(0 9px 9px rgba(0,0,0,.3))}
+.cabinet.picked .cab-box:not([aria-pressed="true"]){opacity:var(--cab-fade)}
+.cabinet.picked .cab-box:not([aria-pressed="true"]):hover{opacity:.8}
+.cab-box:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+/* Stocks without a box image: a text card of the same height (stock + ISO) */
+.box-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:100%;min-width:calc(var(--cab-h) * 1.6);padding:0 14px;
+  background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.box-card b{font:700 16px/1.15 var(--display);white-space:nowrap}
+.box-card small{font:500 11px var(--mono);color:var(--muted);letter-spacing:.04em}
+@media (max-width:760px){
+  .cabinet{margin-inline:-16px}
+  .cab-row{padding-inline:16px}
+  .box-card b{font-size:13px}
+}
+/* The box beside each roll title: clicking it works like the boxes in the cabinet */
+.roll-title{display:flex;align-items:center;gap:14px;min-width:0}
+.roll-box{flex:none;height:var(--roll-box-h);padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.18));
+  transition:transform .2s,filter .2s}
+@media (hover:hover){ .roll-box:hover{transform:translateY(-2px)} }
+.roll-box[aria-pressed="true"]{transform:translateY(-3px);filter:drop-shadow(0 5px 6px rgba(0,0,0,.28))}
+.roll-box:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+/* Reduced motion: no lift (selection shows through the shadow and the dimmed boxes) */
+@media (prefers-reduced-motion:reduce){ .cab-box .box-art,.roll-box{transform:none!important} }
+
+/* ---------- film strip (shared by the film page and city pages) ----------
+   The film base stays near-black in both light and dark mode; photos share one height at their own aspect ratio (no cropping): 180px on desktop, 120px on phones; 24px rebate top and bottom, 7px between frames.
+   Sprocket holes: two rows of rounded rectangles cut out of a page-coloured band with a mask, continuous along the strip; edge print: an SVG background on top (app.js writes --edge), frame numbers below each frame.
+   No CSS scroll-snap (Chrome's proximity snapping is too strong); the gentle settle after scrolling lives in app.js settleStrip */
+.strip{--strip-base:180px;--strip-h:var(--strip-base);--edge-h:24px;position:relative;margin-top:2px}   /* --strip-h: photo height (medium format is taller, see the rewind settings below) */
+.strip-scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-padding-inline:10px;
+  scrollbar-width:none;cursor:grab;border-radius:2px;
+  --fl:0px;--fr:0px;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent);
+          mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent)}
+.strip-scroll::-webkit-scrollbar{display:none}
+.strip.can-left .strip-scroll{--fl:28px}
+.strip.can-right .strip-scroll{--fr:28px}
+.strip-scroll.dragging{cursor:grabbing;user-select:none}
+.strip-film{position:relative;display:flex;gap:7px;width:max-content;padding:var(--edge-h) 10px;
+  background-color:#111;background-image:var(--edge,none);background-repeat:repeat-x;background-position:0 12px;background-size:480px 11px}
+.strip-film::before,.strip-film::after{content:"";position:absolute;left:0;right:0;height:6px;background:var(--bg);pointer-events:none;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='6'%3E%3Crect x='3.75' width='8.5' height='6' rx='1.5'/%3E%3C/svg%3E") repeat-x 0 0/16px 6px;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='6'%3E%3Crect x='3.75' width='8.5' height='6' rx='1.5'/%3E%3C/svg%3E") repeat-x 0 0/16px 6px}
+.strip-film::before{top:4px}
+.strip-film::after{bottom:4px}
+.sframe{position:relative;flex:none;margin:0;cursor:zoom-in}
+.sframe img{display:block;height:var(--strip-h);width:auto;aspect-ratio:auto 5/4;background:#1c1b1a;-webkit-user-drag:none;user-select:none}
+.sframe:focus-visible{outline:2px solid #E8A33D;outline-offset:2px}
+.sno{position:absolute;left:1px;top:calc(100% + 3px);font:700 9px/10px "DIN Condensed","Arial Narrow","Roboto Condensed",sans-serif;letter-spacing:.08em;
+  color:rgba(232,163,61,.85);white-space:nowrap;pointer-events:none}
+/* Arrows at both ends: desktop only; hidden on a side with nothing left to show */
+.strip-btn{position:absolute;top:50%;z-index:2;width:30px;height:30px;margin-top:-15px;border:0;border-radius:50%;padding:0 0 2px;
+  background:rgba(17,17,17,.55);color:#f5efe6;font-size:19px;line-height:1;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s,background-color .2s}
+.strip-btn.prev{left:6px}.strip-btn.next{right:6px}
+.strip.can-left .strip-btn.prev,.strip.can-right .strip-btn.next{opacity:.9;pointer-events:auto}
+.strip-btn:hover{background:rgba(17,17,17,.85)}
+@media (hover:none),(pointer:coarse){.strip-btn{display:none}}
+@media (max-width:760px){
+  .strip{--strip-base:120px;margin-inline:-16px}             /* on phones the strip runs edge to edge */
+  .strip-scroll{border-radius:0}
+}
+
+/* ---------- film strip: rewind animation (film page: 35mm rolls with a canister image in app.js CANISTERS, and rolls whose format contains "120") ----------
+   ===== rewind settings: tune everything here (each image's proportions are in app.js CANISTERS / CANISTER_120, the "rewound" fade distance in REWIND) ===== */
+.strip.has-cas{
+  --lead-gap:10px;           /* at rest, the short stretch of film base between the slot and the first frame (same as other strips) */
+  --cas-tuck:4px;            /* minimum overlap of the canister over the strip's left end, so no gap shows at the slot */
+  --shade-w:50px;            /* width of the gradient shadow beside the slot (40–60) */
+  --shade-alpha:.55;         /* opacity of the shadow at its darkest (right at the slot) */
+  --leader-w:72px;           /* length of the leader after the last frame */
+  --leader-out:44px;         /* leader left outside the canister when fully rewound */
+  --mf-scale:1.5;            /* medium format (120): total strip height (and spool) relative to 35mm; the rebates stay the same, the extra goes to the photos */
+  --tail-space:calc(100cqw - var(--cas-slot) - var(--leader-out));   /* trailing scroll space: by default rewinds until only leader-out is left; a px value works too */
+  /* derived values below; usually no need to change them */
+  --page-gutter:max(20px, calc((100vw - 1180px) / 2 + 20px));         /* space from the strip's left edge to the screen edge (the .page-in column) */
+  --cas-h:calc((var(--strip-h) + 2 * var(--edge-h)) / var(--cas-body));  /* canister height: top cap to bottom cap = strip height */
+  --cas-w:calc(var(--cas-h) * var(--cas-ratio));
+  --cas-out:clamp(0px, calc(var(--page-gutter) - 6px), calc(var(--cas-w) - var(--cas-tuck)));   /* how much of the canister sits outside the strip on the left */
+  --cas-slot:calc(var(--cas-w) - var(--cas-out));                       /* position of the slot within the strip */
+}
+@media (max-width:760px){ .strip.has-cas{--page-gutter:0px} }          /* on phones the strip is edge to edge with no gutter: the canister overlaps the strip's left end */
+/* ===== end of settings ===== */
+
+/* leave room for the spool knob above the strip */
+.strip.has-cas{isolation:isolate;margin-top:calc(2px + var(--cas-h) * var(--cas-top))}
+/* hide the film left of the slot (inside the canister); the right end still fades out */
+.strip.has-cas .strip-scroll{position:relative;z-index:1;display:flex;container-type:inline-size;scroll-padding-left:calc(var(--cas-slot) + var(--lead-gap));
+  -webkit-mask-image:linear-gradient(to right,transparent calc(var(--cas-slot) - 3px),#000 calc(var(--cas-slot) - 1px),#000 calc(100% - var(--fr)),transparent);
+          mask-image:linear-gradient(to right,transparent calc(var(--cas-slot) - 3px),#000 calc(var(--cas-slot) - 1px),#000 calc(100% - var(--fr)),transparent)}
+/* the film starts inside the canister; a leader cut to a half-width tongue follows the last frame */
+.strip.has-cas .strip-film{flex:none;padding-left:calc(var(--cas-slot) + var(--lead-gap));padding-right:0;
+  clip-path:polygon(0 0,calc(100% - var(--leader-w) + 12px) 0,calc(100% - var(--leader-w) + 34px) 42%,100% 42%,100% 100%,0 100%)}
+.sleader{flex:none;width:var(--leader-w)}
+.strip-tail{flex:none;width:var(--tail-space);display:flex;align-items:center;padding-left:14px}
+.strip-done{font-size:13px;color:var(--muted);white-space:nowrap;opacity:0;pointer-events:none}
+/* Canister: above the film, caps aligned with the strip edges; doesn't block pointer events (clicks on it don't open the lightbox, see app.js underCassette) */
+.cas{position:absolute;left:calc(-1 * var(--cas-out));top:calc(-1 * var(--cas-h) * var(--cas-top));z-index:3;width:var(--cas-w);height:var(--cas-h);pointer-events:none}
+.cas img{display:block;width:100%;height:100%;-webkit-user-drag:none;user-select:none}
+/* Medium format: total strip height × --mf-scale; the spool scales with it */
+.strip.strip-mf{--strip-h:calc((var(--strip-base) + 2 * var(--edge-h)) * var(--mf-scale) - 2 * var(--edge-h))}
+/* Shadow beside the slot: above the film, below the canister */
+.cas-shade{position:absolute;top:0;bottom:0;left:calc(var(--cas-slot) - 2px);width:var(--shade-w);z-index:2;pointer-events:none;transform-origin:0 50%;will-change:transform;
+  background:linear-gradient(to right,rgba(0,0,0,var(--shade-alpha)),rgba(0,0,0,0))}
+.strip.has-cas .strip-btn.prev{left:calc(var(--cas-slot) + 8px)}
+@media (prefers-reduced-motion:reduce){ .cas-shade{display:none} }
+
+/* ---------- changelog: the sidebar lists the latest 3 entries; "View all" opens a <dialog> grouped by day in US Eastern Time ---------- */
+.updates{margin:14px 0 0;padding:9px 12px 3px;border:1px solid var(--line);border-radius:8px}
+.up-head{display:flex;align-items:baseline;gap:8px}
+.up-head h2{margin:0;font:600 13px/1.5 var(--body)}
+.up-head h2::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:var(--accent);vertical-align:2px}
+.up-all{margin-left:auto;padding:0;background:none;border:0;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap}
+.up-all:hover,.up-all:focus-visible{color:var(--accent)}
+.updates ol{list-style:none;margin:2px 0 0;padding:0}
+.updates li + li{border-top:1px solid var(--line)}
+.updates li button{display:block;width:100%;padding:7px 0;background:none;border:0;text-align:left;cursor:pointer}
+.updates time{display:block;font:500 11px/1.5 var(--mono);color:var(--accent)}
+.updates time small{margin-left:5px;font-size:10px;font-weight:400;color:var(--muted)}
+.updates li span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:13px;line-height:1.5}
+.updates li button:hover span{color:var(--accent)}
+html:has(#devlog[open]){overflow:hidden}
+#devlog{width:min(560px,calc(100% - 32px));max-width:none;height:auto;max-height:min(80vh,720px);max-height:min(80dvh,720px);margin:auto;padding:0;
+  border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--fg);box-shadow:0 12px 40px rgba(0,0,0,.28);overflow:hidden}
+#devlog[open]{display:flex;flex-direction:column}
+#devlog::backdrop{background:rgba(10,9,8,.55)}
+.dl-head{display:flex;align-items:flex-start;gap:12px;padding:18px 20px 14px;border-bottom:1px solid var(--line);flex:none}
+.dl-head h2{margin:0;font:700 22px/1.2 var(--display)}
+.dl-head p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.dl-x{margin-left:auto;flex:none;width:36px;height:36px;border:0;border-radius:50%;padding:0 0 2px;background:color-mix(in srgb,var(--fg) 7%,transparent);font-size:22px;line-height:1;cursor:pointer;touch-action:manipulation}
+.dl-x:hover{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.dl-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 20px 20px}
+.dl-day h3{position:sticky;top:0;z-index:1;display:flex;align-items:baseline;gap:8px;margin:0;padding:14px 0 8px;background:var(--panel);font:700 15px/1.3 var(--display)}
+.dl-day h3 span{font:400 12px var(--body);color:var(--muted)}
+.dl-day h3 .dl-n{margin-left:auto;font-family:var(--mono);font-size:11px}
+.dl-day ol{list-style:none;margin:0;padding:0}
+.dl-day li{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.dl-day time{font:500 13px/1.5 var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.dl-day time small{display:block;font-size:10px;line-height:1.2;color:var(--muted);letter-spacing:.04em}
+.dl-day p{margin:0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.dl-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.dl-tags span{font-size:11px;line-height:1;padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+.dl-empty{margin:0;padding:36px 0;text-align:center;color:var(--muted);font-size:14px}
+/* Portrait phones and short landscape screens: the sidebar header has two columns (text + small photo); the changelog spans the full row */
+@media (max-width:760px) and (orientation:portrait), (max-height:520px) and (orientation:landscape){
+  .updates{grid-column:1/-1;margin-top:10px}
+}
+/* On phones the dialog fills the screen */
+@media (max-width:760px){
+  #devlog{width:100%;height:100%;max-height:none;border:0;border-radius:0}
+  .dl-head{padding:calc(14px + env(safe-area-inset-top,0px)) 16px 12px}
+  .dl-body{padding:0 16px calc(20px + env(safe-area-inset-bottom,0px))}
+}

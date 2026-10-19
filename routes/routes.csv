@@ -1,0 +1,15 @@
+﻿id,mode,date,from,to,number,operator,distance_km,duration,note,show,via
+amtrak-crescent,rail,2025-11-06,Atlanta,"Washington, D.C.",,Amtrak,1021,,,yes,Atlanta Peachtree|Gainesville GA|Toccoa|Clemson|Greenville SC|Spartanburg|Gastonia|Charlotte|Salisbury|High Point|Greensboro|Danville|Lynchburg|Charlottesville|Culpeper|Manassas|Alexandria|Washington Union Station
+nightjet-zurich-berlin,rail,2026-09-04,Zurich,Berlin,,ÖBB,999,,,yes,Zürich HB|Basel SBB|Freiburg (Breisgau) Hbf|Offenburg|Karlsruhe Hbf|Mannheim Hbf|Frankfurt (Main) Hbf|Erfurt Hbf|Leipzig Hbf|Halle (Saale) Hbf|Berlin Hbf
+sbb-geneve-st-gallen,rail,2026-07-20,Geneva,St. Gallen,,SBB,357,,,yes,Genève|Renens VD|Yverdon-les-Bains|Neuchâtel|Biel/Bienne|Solothurn|Olten|Zürich HB|Winterthur|St. Gallen
+moldova-loop,drive,,Chișinău,Chișinău,,,310,,"Crosses the Dniester from Rîbnița to Rezina, then back to Chișinău on the R20 via Orhei",yes,"Chișinău|Tiraspol|Dubăsari|Rîbnița|~R20 Rezina@47.7463,28.9192|~R20 Orhei@47.4045,28.8176|Chișinău"
+drive-zurich-munich,drive,2026-08-08,Zurich,Munich,,,312,,,yes,Zurich|Munich
+drive-munich-neuschwanstein,drive,2026-08-08,Munich,Neuschwanstein Castle,,,119,,,yes,Munich|Neuschwanstein Castle
+drive-munich-neuschwanstein-zurich,drive,2026-08-09,Munich,Zurich,,,357,,,yes,Munich|Neuschwanstein Castle|Zurich
+drive-mendoza-villavicencio-la-cumbre,drive,2025-12-27,Mendoza,La Cumbre Pass,,,194,,,yes,Mendoza|Villavicencio Nature Reserve|La Cumbre Pass
+drive-la-cumbre-mendoza,drive,2025-12-28,La Cumbre Pass,Mendoza,,,202,,Back to Mendoza via Luján de Cuyo on provincial road RP82,yes,"La Cumbre Pass|~RP82@-33.0020,-69.1302|~Luján de Cuyo@-33.0367,-68.8790|Mendoza"
+drive-berlin-rostock,drive,2026-09-04,Berlin,Rostock,,,231,,Via the A19 autobahn,yes,Berlin|Rostock
+drive-rostock-berlin,drive,2026-09-04,Rostock,Berlin,,,338,,"A20 autobahn, then the A11 back to Berlin",yes,"Rostock|~A20 Tessin@54.0091,12.5054|~A20 Jarmen@53.9211,13.3510|Berlin"
+drive-athens-delphi-meteora,drive,2026-01-23,Athens,Meteora,,,393,,,yes,Athens|Delphi|Meteora
+drive-meteora-sandanski,drive,2026-01-24,Meteora,Sandanski,,,374,,"Via the E65, E92, E75 (A1), A2 and the Thessaloniki–Promachonas road (A25 / National Road 12); after the border, Bulgaria's A3 Struma motorway",yes,"Meteora|Trikala@39.5555,21.7676|Larissa@39.6390,22.4191|Sandanski"
+drive-sandanski-athens-airport,drive,2026-01-25,Sandanski,Athens Airport,,,651,,,yes,"Sandanski|Athens Airport@37.9364,23.9445"

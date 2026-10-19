@@ -1,0 +1,4 @@
+﻿id,operator_code,train_number,train_name,dep_station,arr_station,dep_local,arr_local,rolling_stock,class,coach,seat_or_berth,note
+amtrak-crescent,AMTRAK,,Crescent,Atlanta Peachtree,Washington Union Station,,,,,,,
+nightjet-zurich-berlin,OBB,,Nightjet,Zürich HB,Berlin Hbf,,,,,,,
+sbb-geneve-st-gallen,SBB,IR90 / IR5,,Genève,St. Gallen,2026-07-20 16:05,2026-07-20 20:02,,,,,

@@ -1,0 +1,9 @@
+/originals/
+.DS_Store
+flights/raw/
+/airline_logos_inbox/
+routes/raw/
+/rail_logos_inbox/
+__pycache__/
+review/
+.vscode/

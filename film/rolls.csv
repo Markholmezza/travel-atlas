@@ -1,0 +1,5 @@
+roll,film_stock,iso,format,camera,lens,date_from,date_to,lab,note,box_image
+Portra160-01,Kodak Portra 160,160,120 medium format 6×7,Pentax 67,,,,,,assets/film/boxes/portra160.png
+Ektar100-01,Kodak Ektar 100,100,135,Contax T2,,,,,,assets/film/boxes/ektar100.png
+Portra400-01,Kodak Portra 400,400,135,Canon EOS 3,,,,,,assets/film/boxes/portra400.png
+Portra400-02,Kodak Portra 400,400,135,Canon A-1,,,,,,assets/film/boxes/portra400.png
