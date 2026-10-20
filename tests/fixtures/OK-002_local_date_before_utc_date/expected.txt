@@ -1,0 +1,2 @@
+# regression for EC-040 revision 1.2: the same late-evening DL1234 with its local date 2025-11-12 (UTC date 2025-11-13); no error expected
+# (empty: the overlay must raise no error)

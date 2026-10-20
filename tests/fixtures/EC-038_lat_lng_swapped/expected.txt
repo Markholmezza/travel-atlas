@@ -1,0 +1,2 @@
+# data/cities.js: zurich's lat and lng swapped (both still in range)
+EC-038

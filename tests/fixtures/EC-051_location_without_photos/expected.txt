@@ -1,0 +1,2 @@
+# data/cities.js: new place munich with no photos
+EC-051

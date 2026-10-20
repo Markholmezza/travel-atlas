@@ -1,0 +1,2 @@
+# data/cities.js: new small place sanssouci under potsdam, itself small
+EC-035

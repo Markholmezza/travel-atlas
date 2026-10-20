@@ -1,0 +1,2 @@
+# data/cities.js: berlin/02.jpg is film:true without a roll
+EC-045

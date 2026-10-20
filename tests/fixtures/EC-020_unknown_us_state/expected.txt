@@ -1,0 +1,2 @@
+# data/cities.js: atlanta's state is "Georgia (US)"
+EC-020

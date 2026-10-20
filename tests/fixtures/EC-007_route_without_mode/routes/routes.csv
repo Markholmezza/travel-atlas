@@ -1,0 +1,3 @@
+id,mode,date,from,to,number,operator,distance_km,duration,note,show,via
+sbb-zurich-bern,rail,2026-07-20,Zurich,Bern,,SBB,105,,,yes,Zürich HB|Olten|Bern
+drive-berlin-potsdam,,2026-09-05,Berlin,Potsdam,,,27,,,yes,Berlin|~A115@52.4300,13.2000|Potsdam

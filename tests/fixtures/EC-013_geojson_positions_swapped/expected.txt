@@ -1,0 +1,2 @@
+# flights/flights.geojson: DL1234 track written as [lat, lon]; longitude -118 becomes a latitude
+EC-013

@@ -1,0 +1,2 @@
+# data/cities.js: berlin lists 03.jpg, which is not on disk
+EC-025

@@ -1,0 +1,2 @@
+# regression for EC-024 revision 1.1: DL1234 flies two legs on one date (JFK → ATL → LAX); no error expected
+# (empty: the overlay must raise no error)

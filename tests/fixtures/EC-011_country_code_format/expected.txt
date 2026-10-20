@@ -1,0 +1,2 @@
+# data/cities.js: Germany's iso2 is "DEU" (alpha-3, upper case)
+EC-011

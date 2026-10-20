@@ -1,0 +1,2 @@
+# data/cities.js: zurich's size is "medium"
+EC-016

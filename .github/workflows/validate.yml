@@ -1,0 +1,55 @@
+# Data validation (docs/validation_plan.md) on every push and pull request.
+# Runs the validator on the real data and the rule tests on tests/fixtures; the discrepancy report is shown in the
+# job summary and kept as an artifact. Standard library Python only, nothing to install.
+#
+# Optional: a repository secret ATLAS_PRIVACY_DENYLIST (names separated by newlines or commas) lets EC-055 run here;
+# without it EC-055 is skipped with a warning. Matches are printed as *** in the log, the summary and the artifact.
+
+name: Validate data
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate data (python3 tools/validate_data.py)
+        env:
+          ATLAS_PRIVACY_DENYLIST: ${{ secrets.ATLAS_PRIVACY_DENYLIST }}
+        run: python3 tools/validate_data.py
+
+      - name: Test the validation rules (python3 tools/test_validation.py)
+        if: success() || failure()
+        env:
+          ATLAS_PRIVACY_DENYLIST: ${{ secrets.ATLAS_PRIVACY_DENYLIST }}
+        run: python3 tools/test_validation.py -v
+
+      - name: Add the report to the job summary
+        if: always()
+        run: |
+          if [ -f build/validation_report.md ]; then
+            cat build/validation_report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No validation report was written (see the log of the validation step)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: |
+            build/validation_report.md
+            build/validation_report.csv
+          if-no-files-found: warn

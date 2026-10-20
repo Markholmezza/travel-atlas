@@ -1,0 +1,2 @@
+id,operator_code,train_number,train_name,dep_station,arr_station,dep_local,arr_local,rolling_stock,class,coach,seat_or_berth,note
+sbb-zurich-bern,SBB,IC8,,Zürich HB,Bern,2026-07-20 10:02,2026-07-20 10:58,,,,,
