@@ -263,3 +263,6 @@ This is a public demo built from real personal data.
 
 This project was developed with AI assistance (Claude Code). I defined the requirements, data model and validation
 rules, reviewed every change, and made the design decisions; the AI assistant wrote most of the implementation code.
+
+This public repository is a privacy-cleaned demo version of a private repository I started on October 11, 2026
+(75 commits as of October 20, 2026).
