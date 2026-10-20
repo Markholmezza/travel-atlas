@@ -247,7 +247,8 @@ This is a public demo built from real personal data.
   XMP and IPTC data.
 - **GPS tracks** are trimmed by 500 m at each end, so they do not reveal where a trip started or ended.
 - **Names** that must never be published are kept in a denylist outside the repository (a CI secret). EC-055
-  blocks publishing if any file or path contains one, and the reports show matches only as `***`.
+  blocks publishing if any file or path contains one, and the reports show matches only as `***`. In the
+  Cloudflare build and in CI, a missing denylist fails the build, so the protection cannot lapse silently.
 
 ## Development note
 

@@ -95,10 +95,12 @@ def validate(root):
     return vd.validate(root, root / "build", use_env=False)
 
 
-def run_cli(root):
-    """The validator as CI and Cloudflare run it: a separate process (no inherited denylist variable)."""
-    env = {k: v for k, v in os.environ.items() if k != ad.DENYLIST_ENV}
-    return subprocess.run([sys.executable, str(VALIDATE), "--data-dir", str(root)],
+def run_cli(root, *args, **env_vars):
+    """The validator as CI and Cloudflare run it: a separate process. Inherited denylist and CI variables are dropped,
+    so the result depends only on the fixture and on env_vars."""
+    env = {k: v for k, v in os.environ.items() if k not in (ad.DENYLIST_ENV, "ATLAS_REQUIRE_DENYLIST", "CF_PAGES")}
+    env.update(env_vars)
+    return subprocess.run([sys.executable, str(VALIDATE), "--data-dir", str(root), *args],
                           capture_output=True, text=True, env=env, timeout=300)
 
 
@@ -188,6 +190,32 @@ class RunTests(unittest.TestCase):
             future = vd.validate(root, root / "build", use_env=False, today=dt.date(2026, 9, 8))
         self.assertEqual(ahead.errors, [])
         self.assertEqual([(f.check_id, f.record_id, f.field) for f in future.errors], [("EC-014", "Portra400-01", "date_to")])
+
+    def test_denylist_required_in_ci_and_cloudflare(self):
+        # without a denylist EC-055 cannot run: a warning locally and for fork pull requests, a failure (exit code 2)
+        # in the Cloudflare build and in CI runs that receive secrets
+        cases = [
+            ("local", {}, (), 0),
+            ("Cloudflare build", {"CF_PAGES": "1"}, (), 2),
+            ("CI push or same-repository pull request", {"ATLAS_REQUIRE_DENYLIST": "true"}, (), 2),
+            ("CI pull request from a fork", {"ATLAS_REQUIRE_DENYLIST": "false"}, (), 0),
+            ("Cloudflare cannot be switched off", {"CF_PAGES": "1", "ATLAS_REQUIRE_DENYLIST": "false"}, (), 2),
+            ("flag", {}, ("--require-denylist",), 2),
+            ("secret that is only blank lines", {"CF_PAGES": "1", ad.DENYLIST_ENV: " \n \n"}, (), 2),
+            ("Cloudflare build with the secret", {"CF_PAGES": "1", ad.DENYLIST_ENV: "Nobody Inparticular"}, (), 0),
+        ]
+        with site() as root:
+            (root / ad.DENYLIST_FILE).unlink()
+            for name, env_vars, args, code in cases:
+                with self.subTest(name):
+                    p = run_cli(root, *args, **env_vars)
+                    self.assertEqual(p.returncode, code, p.stdout + p.stderr)
+                    report = (root / "build" / "validation_report.md").read_text(encoding="utf-8")
+                    if code == 2:
+                        self.assertIn("ERROR: EC-055 is required", p.stdout)
+                        self.assertTrue(report.startswith("# Data validation report\n\n**Result: FAILED**"))
+                    elif ad.DENYLIST_ENV not in env_vars:
+                        self.assertIn("WARNING: EC-055 skipped", p.stdout)
 
     def test_exit_codes_and_line_format(self):
         with site(FIXTURES / "EC-012_latitude_out_of_range") as root:
