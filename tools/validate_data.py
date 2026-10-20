@@ -110,7 +110,7 @@ def blank(v):
 
 
 def parse_date(s):
-    m = DATE.match(s) if isinstance(s, str) else None
+    m = DATE.fullmatch(s) if isinstance(s, str) else None
     try:
         return dt.date(*map(int, m.groups())) if m else None
     except ValueError:
@@ -119,7 +119,7 @@ def parse_date(s):
 
 def parse_datetime(s):
     """ISO 8601 date-time → naive datetime (converted to UTC when an offset is given); None if invalid."""
-    m = DATETIME.match(s) if isinstance(s, str) else None
+    m = DATETIME.fullmatch(s) if isinstance(s, str) else None
     if not m:
         return None
     try:
@@ -273,7 +273,9 @@ def published_files(root):
 
 class PythonChecks:
     def __init__(self, ds, today, denylist):
-        self.ds, self.today, self.denylist = ds, today, denylist
+        """today: the current UTC date. EC-014 accepts dates up to one day later (a time zone ahead of UTC)."""
+        self.ds, self.denylist = ds, denylist
+        self.latest = today + dt.timedelta(days=1)
         self.findings, self.skipped = [], []
         self.location_ids, self.photo_files, self.roll_ids = set(), {}, set()
         self.airports, self.route_modes, self.route_dates = {}, {}, {}
@@ -308,7 +310,7 @@ class PythonChecks:
         """EC-011 for one field; True when the value is present and matches."""
         if blank(value):
             return False
-        if not regex.match(str(value)):
+        if not regex.fullmatch(str(value)):         # whole value: with match, $ would let a final newline through
             self.add("EC-011", table, rid, field, value, f"Not a valid {what}")
             return False
         return True
@@ -320,8 +322,8 @@ class PythonChecks:
         d = parse_date(value)
         if d is None:
             self.add("EC-009", table, rid, field, value, "Not a valid YYYY-MM-DD date")
-        elif d > self.today:
-            self.add("EC-014", table, rid, field, value, f"Date is in the future (today is {self.today})")
+        elif d > self.latest:
+            self.add("EC-014", table, rid, field, value, f"Date is in the future (after {self.latest}: today in UTC + 1 day)")
         return d
 
     def datetime(self, table, rid, field, value):
@@ -331,8 +333,8 @@ class PythonChecks:
         t = parse_datetime(value)
         if t is None:
             self.add("EC-010", table, rid, field, value, "Not a valid ISO 8601 date-time (YYYY-MM-DD HH:MM)")
-        elif t.date() > self.today:
-            self.add("EC-014", table, rid, field, value, f"Time is in the future (today is {self.today})")
+        elif t.date() > self.latest:
+            self.add("EC-014", table, rid, field, value, f"Time is in the future (after {self.latest}: today in UTC + 1 day)")
         return t
 
     def coordinate(self, table, rid, field, value, limit, number=None):
@@ -1052,7 +1054,8 @@ def merge(findings, plan, denylist):
 
 
 def validate(data_dir=ad.ROOT, out_dir=None, denylist_path=None, use_env=True, today=None):
-    """Run the three layers on a site directory and return a Result (reports are not written)."""
+    """Run the three layers on a site directory and return a Result (reports are not written).
+    today: the current UTC date (default: now), for EC-014."""
     try:
         plan = ad.load_plan()
     except (OSError, ValueError) as e:
@@ -1060,7 +1063,7 @@ def validate(data_dir=ad.ROOT, out_dir=None, denylist_path=None, use_env=True, t
     ds = ad.Dataset(data_dir)
     out_dir = Path(out_dir) if out_dir else ds.dir / "build"
     denylist = ad.Denylist.load(ds.dir, denylist_path, use_env)
-    py = PythonChecks(ds, today or dt.date.today(), denylist)
+    py = PythonChecks(ds, today or dt.datetime.now(dt.timezone.utc).date(), denylist)
     python_findings = py.run()
     try:
         load = load_sqlite.load(ds, out_dir / "atlas.db")

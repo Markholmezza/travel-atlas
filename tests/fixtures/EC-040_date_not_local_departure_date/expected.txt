@@ -1,2 +1,4 @@
 # flights/flights.csv: DL1234 leaves Atlanta at 21:00 local time on 2025-11-12 (02:00 UTC on the 13th) but its date is the UTC date 2025-11-13
 EC-040
+# layers: only Python can see this; the SQL constraint is a coarse ±1 day bound (plan, EC-040)
+layers: python

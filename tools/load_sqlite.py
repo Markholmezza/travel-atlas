@@ -75,6 +75,9 @@ FIELD_OF = {
     ("routes", "from_name"): "from", ("routes", "to_name"): "to",
     ("rail_details", "route_id"): "id",
 }
+# Source field of a CHECK constraint whose name carries a qualifier ("EC-xxx:<field>_<rule>"); otherwise the part
+# after the colon is the field
+CHECK_FIELD = {"EC-034:parent_size": "parent", "EC-034:parent_self": "parent"}
 TABLE_ORDER = ["countries", "regions", "locations", "location_countries", "film_stocks", "film_rolls", "photos",
                "airports", "flights", "routes", "rail_details"]
 
@@ -192,19 +195,10 @@ def build_rows(ds):
                         "iata": a["iata"], "name": nz(a["name"]), "municipality": nz(a["municipality"]),
                         "country": nz(a["country"]), "lat": number(a["lat"]), "lng": number(a["lng"]),
                     }, "airports", a["iata"], a, f"airports:{a['iata']}"))
-        # dep_local is not in flights.csv: tools/build_flights.py computes it from the airport's time zone and
-        # writes it to flights.geojson; EC-040 compares the date column with it
-        dep_local = {}
-        if ds.ok("flights_geo"):
-            for f in ds.data["flights_geo"]["features"]:
-                p = f.get("properties") if isinstance(f, dict) else None
-                if isinstance(p, dict) and isinstance(p.get("id"), str):
-                    dep_local[p["id"]] = nz(p.get("dep_local"))
         cols = ad.CSV_COLUMNS["flights"]
         for r in ds.rows("flights"):
-            values = {c: nz(r[c]) for c in cols}
-            values["dep_local"] = dep_local.get(r["id"])
-            t["flights"].append(Row(values, "flights", r["id"] or f"line {r['_line']}", r, f"flights#{r['_line']}"))
+            t["flights"].append(Row({c: nz(r[c]) for c in cols}, "flights", r["id"] or f"line {r['_line']}",
+                                    r, f"flights#{r['_line']}"))
 
     if ds.ok("routes"):
         for r in ds.rows("routes"):
@@ -248,7 +242,7 @@ def from_integrity_error(table, row, msg):
         m = re.fullmatch(r"(EC-\d{3}):(\w+)", detail)
         if not m:
             raise RuntimeError(f"{table}: CHECK constraint without a Check ID: {detail}")
-        field = m.group(2)
+        field = CHECK_FIELD.get(detail, m.group(2))
         return Violation(m.group(1), table, row.report_table, row.record_id, field,
                          ad.fmt_value(row.source.get(field)), f'CHECK "{detail}"', f'Rejected by SQLite: CHECK "{detail}"')
     columns = [c.split(".", 1)[1] for c in detail.split(", ")]

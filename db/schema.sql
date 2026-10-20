@@ -3,7 +3,11 @@
 --
 -- Every constraint is labelled with the Check ID it implements (docs/validation_plan.md).
 --   * CHECK constraints are named "EC-xxx:<field>"; SQLite puts the name in the error message, which is how the
---     loader maps a rejected row back to its Check ID and source field.
+--     loader maps a rejected row back to its Check ID and source field. When one field has two rules, the name
+--     gets a qualifier ("EC-034:parent_size", "EC-034:parent_self") and the loader maps it to the field.
+--   * EC-011 patterns are written with GLOB, which has no repetition counts, so each one is spelled out to accept
+--     exactly what the Python regular expression in tools/validate_data.py accepts; tools/test_validation.py
+--     compares the two on several thousand generated values.
 --   * NOT NULL, UNIQUE and FOREIGN KEY errors carry no constraint name, so tools/load_sqlite.py maps them by
 --     table and column (REQUIRED_CHECK, UNIQUE_CHECK, FOREIGN_KEY_CHECK); the comments here give the same IDs.
 --   * Foreign keys are DEFERRABLE INITIALLY DEFERRED: rows may arrive in any order (a small place before its
@@ -96,9 +100,9 @@ CREATE TABLE locations (
   -- EC-016: the two levels the sidebar knows
   CONSTRAINT "EC-016:size" CHECK (size IN ('big', 'small')),
   -- EC-034: a small place hangs under a main place; a main place hangs under nothing
-  CONSTRAINT "EC-034:parent" CHECK ((size = 'small') = (parent_id IS NOT NULL)),
+  CONSTRAINT "EC-034:parent_size" CHECK ((size = 'small') = (parent_id IS NOT NULL)),
   -- EC-034: a place cannot be its own parent (a foreign key alone allows this one-row cycle)
-  CONSTRAINT "EC-034:parent" CHECK (parent_id IS NULL OR parent_id <> id),
+  CONSTRAINT "EC-034:parent_self" CHECK (parent_id IS NULL OR parent_id <> id),
   -- EC-017: region comes from the REGIONS codelist
   FOREIGN KEY (region) REFERENCES regions (name) DEFERRABLE INITIALLY DEFERRED,
   -- EC-029: the parent must exist (self-reference; deferred so a child may precede its parent and cycles load,
@@ -147,9 +151,11 @@ CREATE TABLE film_rolls (
   box_image     TEXT,
   -- EC-021: photos refer to rolls by name
   PRIMARY KEY (roll),
-  -- EC-011: stock + ISO + "-" + two-digit sequence, e.g. Portra400-02
-  CONSTRAINT "EC-011:roll" CHECK (roll GLOB '[A-Za-z]*[0-9]-[0-9][0-9]' AND roll NOT GLOB '*[^A-Za-z0-9-]*'
-                                  AND roll NOT GLOB '*-*-*'),
+  -- EC-011: stock + ISO + "-" + two-digit sequence, e.g. Portra400-02 (^[A-Za-z]+[0-9]+-[0-9]{2}$): letters, then
+  -- digits, then "-NN"; the part before "-NN" has only letters and digits and no letter after a digit
+  CONSTRAINT "EC-011:roll" CHECK (roll GLOB '[A-Za-z]*[0-9]-[0-9][0-9]'
+                                  AND substr(roll, 1, length(roll) - 3) NOT GLOB '*[^A-Za-z0-9]*'
+                                  AND substr(roll, 1, length(roll) - 3) NOT GLOB '*[0-9]*[A-Za-z]*'),
   -- EC-015: box speeds of still films
   CONSTRAINT "EC-015:iso" CHECK (typeof(iso) = 'integer' AND iso BETWEEN 1 AND 6400),
   -- EC-019: the gauge selects canister (135) or spool (120) artwork
@@ -207,15 +213,23 @@ CREATE TABLE flights (
   seat          TEXT,
   note          TEXT,
   show          TEXT,
-  -- not in flights.csv: the departure time in the departure airport's time zone (UTC when unknown), computed by
-  -- tools/build_flights.py and read from flights/flights.geojson; NULL for hidden flights, which have no feature
-  dep_local     TEXT,
   -- EC-021: one row per Flightradar24 track
   PRIMARY KEY (id),
-  -- EC-011: flight number + "_" + 8 hex digits
-  CONSTRAINT "EC-011:id" CHECK (id GLOB '[A-Z0-9][A-Z0-9]*_[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'),
-  -- EC-011: two-character airline designator + 1–4 digits (+ optional suffix letter)
-  CONSTRAINT "EC-011:flight_no" CHECK (flight_no GLOB '[A-Z0-9][A-Z0-9][0-9]*' AND length(flight_no) BETWEEN 3 AND 7),
+  -- EC-011: flight number + "_" + 8 hex digits (^[A-Z0-9]{2}[0-9]{1,4}[A-Z]?_[0-9a-f]{8}$): the "_" and hex
+  -- suffix, and before it the flight number rule below
+  CONSTRAINT "EC-011:id" CHECK (
+    id GLOB '*_[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'
+    AND substr(id, 1, length(id) - 9) GLOB '[A-Z0-9][A-Z0-9][0-9]*'
+    AND length(substr(id, 1, length(id) - 9)) - length(rtrim(substr(id, 1, length(id) - 9), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')) <= 1
+    AND substr(rtrim(substr(id, 1, length(id) - 9), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 3) NOT GLOB '*[^0-9]*'
+    AND length(rtrim(substr(id, 1, length(id) - 9), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')) BETWEEN 3 AND 6),
+  -- EC-011: two-character airline designator + 1–4 digits + optional suffix letter (^[A-Z0-9]{2}[0-9]{1,4}[A-Z]?$):
+  -- third character a digit; at most one trailing capital letter; between them only digits, 1–4 in all
+  CONSTRAINT "EC-011:flight_no" CHECK (
+    flight_no GLOB '[A-Z0-9][A-Z0-9][0-9]*'
+    AND length(flight_no) - length(rtrim(flight_no, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')) <= 1
+    AND substr(rtrim(flight_no, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 3) NOT GLOB '*[^0-9]*'
+    AND length(rtrim(flight_no, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')) BETWEEN 3 AND 6),
   CONSTRAINT "EC-011:airline_iata" CHECK (airline_iata IS NULL OR airline_iata GLOB '[A-Z0-9][A-Z0-9]'),
   CONSTRAINT "EC-011:from_iata" CHECK (from_iata GLOB '[A-Z][A-Z][A-Z]'),
   CONSTRAINT "EC-011:to_iata" CHECK (to_iata GLOB '[A-Z][A-Z][A-Z]'),
@@ -230,8 +244,9 @@ CREATE TABLE flights (
   CONSTRAINT "EC-039:arr_utc" CHECK (julianday(arr_utc) > julianday(dep_utc)),
   -- EC-039: … somewhere else
   CONSTRAINT "EC-039:to_iata" CHECK (from_iata <> to_iata),
-  -- EC-040: date is the local departure date, exactly (plan v1.2 removed the ±1 day tolerance around dep_utc)
-  CONSTRAINT "EC-040:date" CHECK (dep_local IS NULL OR "date" = date(dep_local)),
+  -- EC-040 (coarse): date is the local departure date, and every UTC offset lies between -12 h and +14 h, so it is
+  -- never more than one day from the UTC departure date. The exact rule needs time-zone data and runs in Python
+  CONSTRAINT "EC-040:date" CHECK (abs(julianday("date") - julianday(date(dep_utc))) <= 1),
   -- EC-040: the airline code is the first two characters of the flight number
   CONSTRAINT "EC-040:airline_iata" CHECK (airline_iata IS NULL OR airline_iata = substr(flight_no, 1, 2)),
   -- EC-040: the id starts with the flight number

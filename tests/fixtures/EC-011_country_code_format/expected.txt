@@ -1,2 +1,4 @@
 # data/cities.js: Germany's iso2 is "DEU" (alpha-3, upper case)
 EC-011
+# layers: both layers must reject exactly the same records
+layers: python, sqlite

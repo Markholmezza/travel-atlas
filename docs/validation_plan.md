@@ -26,10 +26,10 @@ severity of each check from this table at run time, every SQL constraint and que
 | EC-008 | Required | Film rolls have `roll`, `film_stock`, `iso` and `format`; photos have `file`. | error | The film page is built from these fields. | Python + SQL constraint |
 | EC-009 | Format | Dates are `YYYY-MM-DD` and real calendar dates (flights, routes, film rolls, articles). | error | `2026-02-30` sorts and displays like a date but is not one. | Python + SQL constraint |
 | EC-010 | Format | Date-times are ISO 8601: `YYYY-MM-DD`, then `T` or a space, then `HH:MM`, with optional seconds and `Z` or `±HH:MM` (flight UTC times, rail local times). | error | Times are compared and subtracted; an unparseable time disables every check that uses it. | Python + SQL constraint |
-| EC-011 | Format | Identifiers and codes match Appendix A.1: location, route and region ids are slugs (lower-case letters, digits and single hyphens); flight ids, flight numbers, airline and airport codes, roll ids, country codes, photo file names, scan numbers, rail operator codes and durations follow their own patterns. | error | Slugs become URLs and folder names; codes are join keys to reference data and asset files. | Python + SQL constraint |
+| EC-011 | Format | Identifiers and codes match Appendix A.1: location, route and region ids are slugs (lower-case letters, digits and single hyphens); flight ids, flight numbers, airline and airport codes, roll ids, country codes, photo file names, scan numbers, rail operator codes and durations follow their own patterns. Where a pattern is also an SQL constraint, the GLOB form accepts exactly the values the Python regular expression accepts, so letters and digits pass and no other character does. | error | Slugs become URLs and folder names; codes are join keys to reference data and asset files. Two layers that disagree on a pattern would let a value through one of them. | Python + SQL constraint |
 | EC-012 | Range | Latitudes are numbers in [−90, 90] and longitudes in [−180, 180]: locations, airports used by flights, and `@lat,lng` stops in `routes/routes.csv`. | error | Out-of-range coordinates cannot be drawn. | Python + SQL constraint |
 | EC-013 | Range | GeoJSON positions (and `from_pos` / `to_pos`) are `[lon, lat]` with lon in [−180, 180] and lat in [−90, 90]; a position that is only valid when read as `[lat, lon]` is reported as swapped. | error | GeoJSON order is the reverse of the `lat, lng` used everywhere else, so a swap is the most common geometry error. | Python |
-| EC-014 | Range | No date or date-time lies in the future (flights, routes, rail, film rolls, articles). | error | The site records past travel; a future date is a typo in the year or month. | Python |
+| EC-014 | Range | No date or date-time lies in the future (flights, routes, rail, film rolls, articles): none is later than today's UTC date plus one day. | error | The site records past travel; a future date is a typo in the year or month. The extra day absorbs time zones: a local date east of Greenwich can already be tomorrow in UTC terms. | Python |
 | EC-015 | Range | Location `hue` is an integer 0–359; film `iso` is an integer 1–6400; route `distance_km` is a number in (0, 20000]. | error | Values outside these ranges break the colour scheme or are typos. | Python + SQL constraint |
 | EC-016 | Enumeration | Location `size` is `big` or `small` (`big` when omitted). | error | The sidebar and the hierarchy rules know only these two values. | Python + SQL constraint |
 | EC-017 | Enumeration | Location `region` is one of the names in the `REGIONS` codelist (Appendix B). | error | A location in an unknown region is missing from the sidebar. | Python + SQL constraint |
@@ -55,10 +55,10 @@ severity of each check from this table at run time, every SQL constraint and que
 | EC-037 | Cross-field consistency | A small location lies within 200 km of its parent (great-circle distance). | error | A distant parent means a wrong parent or wrong coordinates. | SQL query |
 | EC-038 | Cross-field consistency | A location lies inside its country's reference extent (bounding box of the country's airports in `tools/airports.csv`, padded by 3°); swapped or sign-flipped coordinates are named as such. | error | A range check cannot see a `lat`/`lng` swap or a lost minus sign when the wrong values are still in range. | Python |
 | EC-039 | Cross-field consistency | A flight arrives after it departs and lands at a different airport from the one it left. | error | Both are physically impossible. | Python + SQL constraint |
-| EC-040 | Cross-field consistency | A flight's `date` is its local departure date: the date of `dep_local`, the departure time that `tools/build_flights.py` converts to the departure airport's time zone (UTC when unknown) and writes to `flights/flights.geojson`. Flights hidden with `show = no` have no feature and are not compared. `airline_iata` is the first two characters of `flight_no`; `id` starts with `flight_no` followed by `_`. | error | The data dictionary (`tools/build_flights.py`) defines `date` as the local departure date, the date on the boarding pass and on the map. Revision 1.2 replaced a ±1 day tolerance around the UTC date, which had hidden 7 flights holding the UTC date; the codes are derived from each other. | Python + SQL constraint |
+| EC-040 | Cross-field consistency | A flight's `date` is its local departure date. The two layers check it differently. **Python (exact):** `date` equals the date of `dep_utc` converted to the departure airport's time zone, i.e. the date of `dep_local`, which `tools/build_flights.py` computes with the airport's IANA time zone and stores in `flights/flights.geojson`; flights hidden with `show = no` have no feature and are not compared. **SQL constraint (coarse):** `date` is within ±1 day of the date of `dep_utc`. Both layers: `airline_iata` is the first two characters of `flight_no`; `id` starts with `flight_no` followed by `_`. | error | The data dictionary (`tools/build_flights.py`) defines `date` as the local departure date, the date on the boarding pass and on the map. The exact rule needs time-zone data, which only the Python layer reads. The SQL constraint uses the table alone: UTC offsets lie between −12 h and +14 h, so a local date is never more than one day from the UTC date, and the bound still catches a wrong day, month or year when the GeoJSON is missing. It cannot see an off-by-one date such as a UTC date entered instead of the local one; that is the Python check's job. The codes are derived from each other. | Python + SQL constraint |
 | EC-041 | Cross-field consistency | Flight duration (`arr_utc` − `dep_utc`) is between 20 minutes and 20 hours. | error | The shortest scheduled hops take about 20 minutes and the longest non-stop flights under 19 hours. | SQL query |
-| EC-042 | Cross-field consistency | No two flights overlap in time. Pairs already reported by EC-024 are excluded. | error | One traveller cannot be on two aircraft at once. | SQL query |
-| EC-043 | Cross-field consistency | The average speed implied by the distance between the airports and the duration is 150–1,100 km/h. Flights already outside EC-041 are excluded. | warning | Catches a wrong airport or time that still passes EC-041. | SQL query |
+| EC-042 | Cross-field consistency | No two flights overlap in time. Pairs already reported by EC-024 are excluded. | error | Assumes that every flight in the table was taken by one and the same traveller (the site's author), who cannot be on two aircraft at once. Flights of other people must not be entered; if they ever are, this check has to be revised. | SQL query |
+| EC-043 | Cross-field consistency | The average speed implied by the distance between the airports and the duration is 150–1,100 km/h. Flights already outside EC-041 are excluded. | warning | Catches a wrong airport or time that still passes EC-041. A warning, not an error: `dep_utc` and `arr_utc` are the first and last positions Flightradar24 recorded, which can include taxiing, so a short hop can legitimately average less than 150 km/h. | SQL query |
 | EC-044 | Cross-field consistency | GeoJSON track ends lie near their declared ends: within 200 km of the airports for flights (and `from_pos` / `to_pos` within 5 km of them), within 25 km of `from_pos` / `to_pos` for ground routes; a swapped `[lat, lon]` track is named as such. | error | Detects a swapped track that EC-013 cannot see because every value is in range. | Python |
 | EC-045 | Cross-field consistency | A photo marked `film:true` has a `roll`, and a photo with a `roll` is marked `film:true`. | error | Film photos are listed on the film page by roll. | Python + SQL constraint |
 | EC-046 | Cross-field consistency | A roll's `iso` equals the speed in its stock name when the name contains one, and all rolls of one stock have the same ISO. | error | Box speed is a property of the stock, not of the roll. | Python + SQL constraint |
@@ -80,8 +80,9 @@ discrepancy report:
 1. **Python checks** (`tools/validate_data.py`) read the raw files: structure, required fields, formats, ranges,
    codelists, files on disk, GeoJSON geometry and privacy. These are the front-line edit checks.
 2. **SQLite load** (`tools/load_sqlite.py`) loads every row into `build/atlas.db`, built from `db/schema.sql`.
-   PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE and named CHECK constraints (`CONSTRAINT "EC-012:lat"`) reject bad
-   rows one at a time; each rejection is recorded with table, record id, constraint and raw value, and the load
+   PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE and named CHECK constraints reject bad rows one at a time. A CHECK
+   is named `EC-xxx:<field>` (`CONSTRAINT "EC-012:lat"`), with a qualifier when one field has two rules
+   (`EC-034:parent_size`, `EC-034:parent_self`); each rejection is recorded with table, record id, constraint and raw value, and the load
    continues. Rows derived from a rejected row (its photos, for instance) are skipped and counted, not reported
    again.
 3. **SQL query checks** (`db/checks/EC-xxx_*.sql`) run cross-record checks on the loaded data. Every query
@@ -89,7 +90,9 @@ discrepancy report:
 
 Row-level rules that can be written as constraints are enforced in both the Python and the SQL layer, as a
 second line of defence. When both layers find the same discrepancy (same check, record, field and value), the
-report lists it once with `detected by: python, sqlite`. Cross-record rules are implemented once, as SQL queries.
+report lists it once with `detected by: python, sqlite`. Where the two layers deliberately check a rule at
+different strengths, the check's description says so (EC-040: exact in Python, a ±1 day bound in SQL).
+Cross-record rules are implemented once, as SQL queries.
 Cross-field checks only look at values that passed their own format and range checks, so one wrong value raises
 one discrepancy rather than a chain of them.
 
@@ -161,9 +164,10 @@ published.
 
 | Check | Threshold |
 |---|---|
+| EC-014 | no date later than today's UTC date + 1 day |
 | EC-037 | small location ≤ 200 km from its parent |
 | EC-038 | country extent = bounding box of the country's airports ± 3° |
-| EC-040 | flight `date` equal to the date of `dep_local`, no tolerance (±1 day around the `dep_utc` date until revision 1.2) |
+| EC-040 | Python: flight `date` = date of `dep_local`, exactly (no tolerance since revision 1.2). SQL constraint: \|`date` − date of `dep_utc`\| ≤ 1 day, a coarse bound (UTC offsets lie between −12 h and +14 h) |
 | EC-041 | 20 min ≤ flight duration ≤ 20 h |
 | EC-043 | 150 km/h ≤ implied average speed ≤ 1,100 km/h |
 | EC-044 | flight track ends ≤ 200 km from the airport (Flightradar24 tracks can miss take-off or landing; `tools/build_flights.py` matches airports up to 200 km away), `from_pos` / `to_pos` ≤ 5 km from it; ground route ends ≤ 25 km from `from_pos` / `to_pos` |
@@ -176,7 +180,36 @@ published.
 |---|---|---|
 | 1.0 | 2026-10-19 | First version. |
 | 1.1 | 2026-10-19 | EC-024: the duplicate key was flight number + date. The first run on real data flagged AM58 on 2026-01-02, which is one flight number flying two legs (MEX → MTY → NRT) and correct data. The departure airport was added to the key (and to the EC-042 exclusion that reuses it), and a regression fixture (`tests/fixtures/OK-001_multi_leg_flight`) keeps a multi-leg flight passing. |
-| 1.2 | 2026-10-19 | EC-040: `date` must equal the local departure date exactly; the ±1 day tolerance around the UTC date is gone. Profiling showed that all 23 rows of `flights/flights.csv` held the UTC departure date, although the data dictionary in `tools/build_flights.py` defines the local date (the map already showed local dates, recomputed into the GeoJSON). The tolerance had let 7 flights through. The 7 dates were corrected to the local date from the existing time-zone data (`dep_local` in `flights/flights.geojson`). New fixtures: `EC-040_date_not_local_departure_date` (a UTC date where the local date is the day before) and `OK-002_local_date_before_utc_date` (the same flight with the local date passes). After the correction the two AM58 legs fall on different local dates; the EC-024 key from 1.1 stays, since legs on the same local date remain possible (OK-001). Added the section "Considered but not implemented". |
+| 1.2 | 2026-10-19 | Flight date definition corrected and data fixed; EC-040 split into an exact and a coarse layer; EC-011 SQL patterns aligned with Python; EC-034 constraint names; EC-014 time-zone allowance; EC-042 and EC-043 rationale; "Considered but not implemented" added. Details below. |
+
+Changes in 1.2:
+
+- **EC-040, flight date definition.** The data dictionary (`tools/build_flights.py`) defines `date` as the local
+  departure date, but all 23 rows of `flights/flights.csv` held the UTC departure date, written by an older
+  version of the build tool. The map was unaffected, because it shows the local date recomputed into the GeoJSON.
+  The old ±1 day tolerance accepted both conventions and so hid the error. The 7 rows whose local date differs
+  were corrected from the existing time-zone data (`dep_local` in `flights/flights.geojson`): AM28, AM29, AM485,
+  AM58 (first leg), DL1687, LA2483 and QR893. After the correction the two AM58 legs fall on different local
+  dates; the EC-024 key from 1.1 stays, since legs on the same local date remain possible (OK-001).
+- **EC-040, two layers.** Python now requires `date` to equal the local departure date exactly. The SQL
+  constraint deliberately stays a coarse ±1 day bound around the UTC departure date: it needs no time-zone data
+  and still catches gross errors. New fixtures: `EC-040_date_not_local_departure_date` (the UTC date entered
+  where the local date is a day earlier; caught by Python only, as designed) and
+  `OK-002_local_date_before_utc_date` (the same flight with its local date; no error).
+- **EC-011.** The SQL GLOB patterns for flight ids, flight numbers and roll ids used `*`, which let any character
+  through (`EW87.62`, `AM5 8`, `DL1234_v2_0a1b2c3d`, `Portra4O0-01` passed SQL but not Python). They now spell
+  out the same rules as the Python regular expressions. The Python side now matches whole values (`fullmatch`),
+  where `^…$` with `match` would accept a trailing newline. New fixture `EC-011_codes_with_punctuation` (both
+  layers reject the same records), plus a test that compares the SQL and Python patterns on several thousand
+  generated values.
+- **EC-034.** The two CHECK constraints that shared the name `EC-034:parent` are now `EC-034:parent_size` (only a
+  small place has a parent) and `EC-034:parent_self` (never its own parent).
+- **EC-014.** A date may be up to one day later than today's UTC date, so a local date in a time zone ahead of
+  UTC is not reported as the future.
+- **EC-042, EC-043.** EC-042's rationale states its assumption (all flights belong to one traveller). EC-043's
+  explains why it is a warning (a short hop can average less than 150 km/h because of taxi time).
+- **Considered but not implemented.** New section below: a frame-order check for film scans was assessed and
+  rejected.
 
 ## Considered but not implemented
 
