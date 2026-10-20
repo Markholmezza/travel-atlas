@@ -100,14 +100,24 @@ one discrepancy rather than a chain of them.
 (`[EC-012] error locations zurich lat=-132.8 Latitude out of range [-90, 90]`), and ends with a summary line.
 `build/validation_report.md` and `build/validation_report.csv` hold the same discrepancies, a per-check summary
 and the SQLite load statistics. Exit code 0 means no errors (warnings allowed), 1 means at least one error, and 2
-means the validator itself could not run.
+means the validator itself could not run, or a required EC-055 could not run (see below).
 
 **Privacy denylist:** EC-055 reads terms from `tools/privacy_denylist.txt` (one per line, `#` for comments; the
 file is listed in `.gitignore` because it contains the names it protects) and from the environment variable
 `ATLAS_PRIVACY_DENYLIST` (terms separated by newlines or commas; set as a GitHub Actions secret or a Cloudflare
 environment variable). Matching ignores case and accents and treats spaces, hyphens, underscores and dots between
-words alike. If neither source exists, EC-055 is skipped with a warning in the run notes. Every output (terminal,
-Markdown, CSV) is passed through the same matcher, and matches are replaced by `***`.
+words alike. Every output (terminal, Markdown, CSV) is passed through the same matcher, and matches are replaced
+by `***`.
+
+When neither source exists, what happens depends on where the validator runs:
+
+- **Cloudflare Pages build** (`CF_PAGES=1`, set by Cloudflare): the denylist is required. The report is still
+  written, but the run fails with exit code 2, so the build fails. This cannot be switched off, so name protection
+  cannot lapse in the publishing build without anyone noticing.
+- **GitHub Actions**, on pushes and on pull requests from this repository (the workflow sets
+  `ATLAS_REQUIRE_DENYLIST=true`): required as well.
+- **Pull requests from forks**, which receive no secrets, **and local runs**: EC-055 is skipped with a warning in
+  the run notes. `--require-denylist` makes a local run strict too.
 
 **Scope of file scans** (EC-050, EC-054, EC-055): every file under the data directory except `.git/`, `build/`,
 `tests/fixtures/` (test data contains deliberate violations) and paths listed in `.gitignore`, which are never
@@ -181,6 +191,7 @@ published.
 | 1.0 | 2026-10-19 | First version. |
 | 1.1 | 2026-10-19 | EC-024: the duplicate key was flight number + date. The first run on real data flagged AM58 on 2026-01-02, which is one flight number flying two legs (MEX → MTY → NRT) and correct data. The departure airport was added to the key (and to the EC-042 exclusion that reuses it), and a regression fixture (`tests/fixtures/OK-001_multi_leg_flight`) keeps a multi-leg flight passing. |
 | 1.2 | 2026-10-19 | Flight date definition corrected and data fixed; EC-040 split into an exact and a coarse layer; EC-011 SQL patterns aligned with Python; EC-034 constraint names; EC-014 time-zone allowance; EC-042 and EC-043 rationale; "Considered but not implemented" added. Details below. |
+| 1.3 | 2026-10-20 | EC-055 required in the Cloudflare build and in CI runs that receive secrets; a missing denylist fails the run there. Details below. |
 
 Changes in 1.2:
 
@@ -210,6 +221,13 @@ Changes in 1.2:
   explains why it is a warning (a short hop can average less than 150 km/h because of taxi time).
 - **Considered but not implemented.** New section below: a frame-order check for film scans was assessed and
   rejected.
+
+Changes in 1.3 (2026-10-20):
+
+- **EC-055 is mandatory where it matters.** Before, a missing denylist only produced a warning everywhere, so name
+  protection could stop working in CI or in the Cloudflare build without anyone noticing. In the Cloudflare
+  Pages build and in GitHub Actions runs that receive secrets, a missing or empty denylist now fails the run
+  (exit code 2). Local runs and pull requests from forks still only warn. The test suite covers each environment.
 
 ## Considered but not implemented
 

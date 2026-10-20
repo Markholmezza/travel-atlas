@@ -21,8 +21,12 @@ Usage:
   --denylist  privacy denylist (default: <data-dir>/tools/privacy_denylist.txt); terms in $ATLAS_PRIVACY_DENYLIST
               are added. Without either, EC-055 is skipped with a warning. Matches are never printed: every output
               shows them as ***
+  --require-denylist  treat a missing denylist as a failure (exit code 2). This is automatic in the Cloudflare Pages
+              build (CF_PAGES=1) and in GitHub Actions runs that receive repository secrets (the workflow sets
+              ATLAS_REQUIRE_DENYLIST=true); locally and for pull requests from forks it stays a warning
 
-Exit code: 0 no errors (warnings allowed), 1 at least one error, 2 the validator itself could not run.
+Exit code: 0 no errors (warnings allowed), 1 at least one error, 2 the validator itself could not run, or a required
+EC-055 could not run because the denylist is missing.
 Severity comes from the validation plan; code refers to checks only by ID. Standard library only (Python 3.8+).
 """
 
@@ -913,12 +917,15 @@ def run_sql_checks(db_path, plan):
 # ---------- run and report ----------
 
 class Result:
-    def __init__(self, data_dir, out_dir, plan, findings, load, skipped, denylist, counts):
+    def __init__(self, data_dir, out_dir, plan, findings, load, skipped, denylist, counts, denylist_required=False):
         self.data_dir, self.out_dir, self.plan = data_dir, out_dir, plan
         self.findings, self.load, self.skipped, self.denylist, self.counts = findings, load, skipped, denylist, counts
         self.errors = [f for f in findings if f.severity == "error"]
         self.warnings = [f for f in findings if f.severity == "warning"]
-        self.exit_code = 1 if self.errors else 0
+        # EC-055 had to run here (CI, Cloudflare build) but could not: the run fails even without data errors
+        self.required_not_run = denylist_required and not denylist
+        self.exit_code = 2 if self.required_not_run else 1 if self.errors else 0
+        self.failed = bool(self.exit_code)
 
     def ids(self, severity=None):
         return {f.check_id for f in self.findings if severity in (None, f.severity)}
@@ -934,10 +941,14 @@ class Result:
             groups.setdefault(why, []).append(cid)
         return list(groups.items())
 
+    REQUIRED_NOT_RUN = (f"EC-055 is required in this environment (CI or the Cloudflare build) but did not run: "
+                        f"no privacy denylist ({ad.DENYLIST_FILE} or ${ad.DENYLIST_ENV})")
+
     def summary(self):
         return (f"{len(self.errors)} error{'s' * (len(self.errors) != 1)}, "
                 f"{len(self.warnings)} warning{'s' * (len(self.warnings) != 1)} — "
-                + ("FAILED" if self.errors else "PASSED"))
+                + ("FAILED" if self.failed else "PASSED")
+                + (" (EC-055 required but not run)" if self.required_not_run else ""))
 
     @staticmethod
     def shown(path):
@@ -962,8 +973,11 @@ class Result:
             lines.append(f"{title} ({len(group)})")
             lines += [f.line() for f in group] or ["  none"]
             lines.append("")
+        if self.required_not_run:
+            lines.append(f"ERROR: {self.REQUIRED_NOT_RUN}")
         for why, ids in self.skipped_by_reason():
-            lines.append(f"WARNING: {', '.join(ids)} skipped: {why}")
+            if not (self.required_not_run and ids == ["EC-055"]):
+                lines.append(f"WARNING: {', '.join(ids)} skipped: {why}")
         if self.not_loaded_note():
             lines.append(f"NOTE: {self.not_loaded_note()}")
         lines.append(f"Report: {self.shown(self.out_dir / 'validation_report.md')}, "
@@ -981,7 +995,7 @@ class Result:
             pass
         skipped = {cid for cid, _ in self.skipped}
         out = ["# Data validation report", "",
-               f"**Result: {'FAILED' if self.errors else 'PASSED'}** — {len(self.errors)} errors, "
+               f"**Result: {'FAILED' if self.failed else 'PASSED'}** — {len(self.errors)} errors, "
                f"{len(self.warnings)} warnings · {len(self.plan)} checks ({len(self.plan) - len(skipped)} run, "
                f"{len(skipped)} skipped)", "",
                "| | |", "|---|---|",
@@ -1013,6 +1027,8 @@ class Result:
                     "to, a rejected row and are not reported again.", ""]
         if self.skipped or self.load.not_loaded or self.not_loaded_note():
             out += ["## Run notes", ""]
+            if self.required_not_run:
+                out.append(f"- **{self.REQUIRED_NOT_RUN}**")
             out += [f"- {', '.join(ids)} skipped: {why}" for why, ids in self.skipped_by_reason()]
             if self.not_loaded_note():
                 out.append(f"- {self.not_loaded_note()}")
@@ -1053,9 +1069,18 @@ def merge(findings, plan, denylist):
     return sorted(merged.values(), key=lambda f: (order[f.severity], f.check_id, f.table, f.record_id, f.field))
 
 
-def validate(data_dir=ad.ROOT, out_dir=None, denylist_path=None, use_env=True, today=None):
+def denylist_required(flag=False, env=os.environ):
+    """Whether EC-055 must run (a missing denylist then fails the run with exit code 2).
+    Always in the Cloudflare Pages build, which sets CF_PAGES=1 (not switchable off, so the protection cannot lapse
+    there unnoticed); in GitHub Actions when the workflow says so (ATLAS_REQUIRE_DENYLIST=true for pushes and
+    pull requests from this repository; pull requests from forks receive no secrets); or with --require-denylist.
+    Local runs only warn."""
+    return flag or env.get("CF_PAGES") == "1" or env.get("ATLAS_REQUIRE_DENYLIST", "").strip().lower() in ("1", "true", "yes")
+
+
+def validate(data_dir=ad.ROOT, out_dir=None, denylist_path=None, use_env=True, today=None, require_denylist=False):
     """Run the three layers on a site directory and return a Result (reports are not written).
-    today: the current UTC date (default: now), for EC-014."""
+    today: the current UTC date (default: now), for EC-014. require_denylist: see denylist_required()."""
     try:
         plan = ad.load_plan()
     except (OSError, ValueError) as e:
@@ -1085,7 +1110,7 @@ def validate(data_dir=ad.ROOT, out_dir=None, denylist_path=None, use_env=True, t
             raise ConfigError(f"SQL check failed to run: {e}")
     findings = merge(python_findings + sqlite_findings + sql_findings, plan, denylist)
     counts = {"python": len(python_findings), "sql": len(sql_findings), "queries": len(list(CHECKS_DIR.glob("EC-*.sql")))}
-    return Result(ds.dir, out_dir, plan, findings, load, skipped, denylist, counts)
+    return Result(ds.dir, out_dir, plan, findings, load, skipped, denylist, counts, require_denylist)
 
 
 def main(argv=None):
@@ -1093,9 +1118,12 @@ def main(argv=None):
     ap.add_argument("--data-dir", default=str(ad.ROOT), help="site directory to check (default: this repository)")
     ap.add_argument("--out-dir", help="where reports and atlas.db go (default: <data-dir>/build)")
     ap.add_argument("--denylist", help=f"privacy denylist file (default: <data-dir>/{ad.DENYLIST_FILE})")
+    ap.add_argument("--require-denylist", action="store_true",
+                    help="fail (exit code 2) when no denylist is available; automatic in CI and the Cloudflare build")
     args = ap.parse_args(argv)
     try:
-        result = validate(args.data_dir, args.out_dir, args.denylist)
+        result = validate(args.data_dir, args.out_dir, args.denylist,
+                          require_denylist=denylist_required(args.require_denylist))
     except ConfigError as e:
         print(f"Validator error: {e}", file=sys.stderr)
         return 2

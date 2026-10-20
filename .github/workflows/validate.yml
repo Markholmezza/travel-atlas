@@ -2,8 +2,10 @@
 # Runs the validator on the real data and the rule tests on tests/fixtures; the discrepancy report is shown in the
 # job summary and kept as an artifact. Standard library Python only, nothing to install.
 #
-# Optional: a repository secret ATLAS_PRIVACY_DENYLIST (names separated by newlines or commas) lets EC-055 run here;
-# without it EC-055 is skipped with a warning. Matches are printed as *** in the log, the summary and the artifact.
+# The repository secret ATLAS_PRIVACY_DENYLIST (names separated by newlines or commas) lets EC-055 run here. On pushes
+# and on pull requests from this repository the denylist is required: if the secret is missing or empty, the
+# validation step fails (exit code 2). Pull requests from forks receive no secrets, so there EC-055 is skipped with a
+# warning. Matches are printed as *** in the log, the summary and the artifact.
 
 name: Validate data
 
@@ -18,15 +20,16 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Validate data (python3 tools/validate_data.py)
         env:
           ATLAS_PRIVACY_DENYLIST: ${{ secrets.ATLAS_PRIVACY_DENYLIST }}
+          ATLAS_REQUIRE_DENYLIST: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
         run: python3 tools/validate_data.py
 
       - name: Test the validation rules (python3 tools/test_validation.py)
@@ -46,7 +49,7 @@ jobs:
 
       - name: Upload the report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: validation-report
           path: |
