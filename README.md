@@ -1,10 +1,16 @@
 # Travel Atlas
 
-Travel Atlas — an interactive map built on a validated geospatial data pipeline.
+A data-quality and geospatial data pipeline project, published as an interactive travel map.
 
-**Live site:** https://ziang-atlas.pages.dev
+**Live site:** https://ziang-atlas.pages.dev &nbsp; [![Validate data](https://github.com/Markholmezza/travel-atlas/actions/workflows/validate.yml/badge.svg)](https://github.com/Markholmezza/travel-atlas/actions/workflows/validate.yml)
 
-[![Validate data](https://github.com/Markholmezza/travel-atlas/actions/workflows/validate.yml/badge.svg)](https://github.com/Markholmezza/travel-atlas/actions/workflows/validate.yml)
+**At a glance**
+
+- 55 edit checks modeled on a clinical Data Validation Plan, each with an ID, severity and rationale
+- 3 validation layers (Python checks, SQLite constraints, SQL queries); any error fails the Cloudflare Pages
+  build, so nothing is deployed (GitHub Actions runs the same checks but only reports)
+- 103 tests, with one deliberately broken fixture per rule
+- Found and corrected 7 records that violated the data dictionary, with an audit trail
 
 ## Screenshots
 
@@ -71,7 +77,7 @@ flowchart LR
 |---|---|---|---|
 | `tools/detect_people.swift` | Flags photos that show people, using Apple Vision (faces, figures, body poses). | `photos/` (or originals) | `review/detections.json` |
 | `tools/contact_sheet.py` | Builds a review page for keeping or removing each photo, from the detections. | photos, detections | `review/contact_sheet.html` |
-| `tools/add_photos.py` | Resizes (long edge 2000 px), re-encodes without EXIF (keeping the colour profile), sorts by capture time and numbers photos. Film scans are marked by roll. | `originals/<place>/` (not committed) | `photos/<place>/NN.jpg`, photo lists in `data/cities.js`, new rolls in `film/rolls.csv` |
+| `tools/add_photos.py` | Resizes (long edge 2000 px), re-encodes without EXIF (keeping the color profile), sorts by capture time and numbers photos. Film scans are marked by roll. | `originals/<place>/` (not committed) | `photos/<place>/NN.jpg`, photo lists in `data/cities.js`, new rolls in `film/rolls.csv` |
 | `tools/build_flights.py` | Infers flight number, airline, airports and times from each track; simplifies tracks and splits them at the antimeridian; computes local times. | `flights/raw/` (Flightradar24), `tools/airports.csv` | `flights/flights.csv`, `flights/flights.geojson`, airline logos |
 | `tools/build_routes.py` | Builds rail and road routes from GPS tracks (trimmed by 500 m at each end) or from stop lists routed with OpenRailRouting / OSRM. | `routes/raw/`, `routes/routes.csv`, `routes/rail.csv` | `routes/routes.geojson`, operator logos |
 | `tools/build_articles.py` | Converts articles to paragraphs, headings, bold and italics; a cover photo can be named in the first line. | `articles_inbox/<place>/YYYY-MM-DD Title.ext` | `data/articles.js` |
@@ -106,7 +112,7 @@ plan cannot disagree. Rule changes are recorded in the plan's revision history.
 | 3. SQL queries | `db/checks/EC-xxx_*.sql` | Cross-record rules: duplicates, the place hierarchy (including cycle detection with a recursive CTE), distances (a haversine function registered from Python), overlapping or implausible flights, completeness |
 
 **Why the same rule is implemented in both Python and SQL.** Row-level rules that can be expressed as constraints
-are enforced twice, as defence in depth:
+are enforced twice, as defense in depth:
 
 - The Python layer works on the raw files and gives precise messages.
 - The database enforces integrity on its own, whatever loads the data.
@@ -148,7 +154,10 @@ are enforced twice, as defence in depth:
 ### Errors and warnings
 
 - **Errors block publishing.** `validate_data.py` exits with code 1. The Cloudflare Pages build command runs the
-  validator, so the build fails and the previous deployment stays live.
+  validator, so the build fails and the previous deployment stays live. This was tested with a branch containing
+  one deliberate error: Cloudflare reported "Build failed" and published no preview of that branch.
+- **GitHub Actions reports; it does not deploy.** It runs the same validation and the test suite on every push and
+  pull request, and shows the result as a check, a job summary and an artifact.
 - **Warnings are reported for review and do not block.** Examples: a place without photos, a route without a date.
 - **Where the report appears:** the terminal (one line per discrepancy, e.g.
   `[EC-012] error locations zurich lat=-132.8 Latitude out of range [-90, 90]`), a Markdown and CSV discrepancy
@@ -156,7 +165,7 @@ are enforced twice, as defence in depth:
 
 ### Tests
 
-`python3 tools/test_validation.py` runs 102 tests with the standard library `unittest`.
+`python3 tools/test_validation.py` runs 103 tests with the standard library `unittest`.
 
 - **One broken dataset per rule.** `tests/fixtures/_base` is a small, clean site and must raise no error and no
   warning (a negative control). Each check has a fixture containing exactly one deliberate error, and the test
