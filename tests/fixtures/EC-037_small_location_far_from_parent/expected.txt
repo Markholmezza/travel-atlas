@@ -1,0 +1,2 @@
+# data/cities.js: potsdam moved to Munich, 504 km from berlin
+EC-037

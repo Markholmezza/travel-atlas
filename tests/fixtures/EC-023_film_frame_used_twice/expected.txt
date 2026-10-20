@@ -1,0 +1,2 @@
+# data/cities.js: potsdam/01.jpg has scan 000001, the frame of berlin/02.jpg
+EC-023

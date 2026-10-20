@@ -1,0 +1,2 @@
+# film/rolls.csv: box_image points to assets/film/boxes/missing.png
+EC-031

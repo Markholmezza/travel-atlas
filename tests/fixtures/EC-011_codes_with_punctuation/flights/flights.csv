@@ -1,0 +1,3 @@
+id,date,flight_no,airline,airline_iata,from_iata,from_city,to_iata,to_city,dep_utc,arr_utc,aircraft,seat,note,show
+EW87.62_41893d02,2026-09-06,EW87.62,Eurowings,EW,BER,Berlin,ZRH,Zurich,2026-09-06 16:08,2026-09-06 17:23,Airbus A321-231,,,yes
+DL1234_v2_0a1b2c3d,2025-11-12,DL1234,Delta Air Lines,DL,ATL,Atlanta,LAX,Los Angeles,2025-11-12 14:00,2025-11-12 18:50,Boeing 757-200,,,yes

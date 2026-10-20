@@ -1,0 +1,4 @@
+# codes that the old SQL GLOBs accepted but the Python patterns reject: flight number EW87.62 (and its id), flight id DL1234_v2_0a1b2c3d, roll Portra4O0-01 (letter O for zero)
+EC-011
+# layers: both layers must reject exactly the same records
+layers: python, sqlite

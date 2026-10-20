@@ -1,0 +1,2 @@
+# film/rolls.csv: roll Ektar100-01 with no photos
+EC-052

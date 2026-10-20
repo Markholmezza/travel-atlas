@@ -1,0 +1,2 @@
+# Test fixture: a synthetic name that must never appear in published files (EC-055).
+Quentin Placeholder

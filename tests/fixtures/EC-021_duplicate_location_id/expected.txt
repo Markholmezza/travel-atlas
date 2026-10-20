@@ -1,0 +1,2 @@
+# data/cities.js: a second place with id zurich
+EC-021

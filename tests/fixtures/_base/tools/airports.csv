@@ -1,0 +1,10 @@
+iata,name,municipality,country,lat,lng,size
+ATL,Hartsfield Jackson Atlanta International Airport,Atlanta,US,33.6367,-84.4281,large
+BER,Berlin Brandenburg Airport,Berlin,DE,52.3617,13.5023,large
+FRA,Frankfurt Main Airport,Frankfurt am Main,DE,50.0267,8.5584,large
+GVA,Geneva International Airport,Geneva,CH,46.2381,6.109,large
+HAM,Hamburg Helmut Schmidt Airport,Hamburg,DE,53.6304,9.9882,large
+JFK,John F. Kennedy International Airport,New York,US,40.6394,-73.7793,large
+LAX,Los Angeles International Airport,Los Angeles,US,33.9425,-118.408,large
+MUC,Munich Airport,Munich,DE,48.3538,11.7861,large
+ZRH,Zürich Airport,Zurich,CH,47.4581,8.5481,large

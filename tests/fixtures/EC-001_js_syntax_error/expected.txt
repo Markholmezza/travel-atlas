@@ -1,0 +1,2 @@
+# data/cities.js: comma between zurich's lat and lng removed
+EC-001

@@ -1,0 +1,2 @@
+# photos/berlin/01.jpg carries an APP1 Exif block with a GPS IFD (synthetic position)
+EC-054

@@ -7,3 +7,6 @@ routes/raw/
 __pycache__/
 review/
 .vscode/
+/build/
+/private/
+/tools/privacy_denylist.txt
