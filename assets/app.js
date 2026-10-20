@@ -317,7 +317,7 @@ const mercY = lat => Math.log(Math.tan(Math.PI/4 + lat*Math.PI/360));
 document.documentElement.style.setProperty("--map-aspect", (2*Math.PI / (mercY(LAT_BAND.getNorth()) - mercY(LAT_BAND.getSouth()))).toFixed(4));
 const map = L.map("map",{worldCopyJump:true, zoomControl:true, zoomSnap:0.25, zoomDelta:0.5,
   wheelPxPerZoomLevel:110, wheelDebounceTime:15, scrollWheelZoom:false,
-  maxBounds:LAT_BAND, maxBoundsViscosity:1}).setView([25,160],2);
+  maxBounds:LAT_BAND, maxBoundsViscosity:1}).setView([5,-47],2);            // worldView() sets the real default view once the page is ready
 // Turn zoomSnap off temporarily to set an exact view: setView / getBoundsZoom normally snap to multiples of 0.25, which on phones crops the world or leaves gaps
 function exactly(fn){
   const snap = map.options.zoomSnap;
@@ -403,8 +403,8 @@ const PIN_ICONS = {
   big:   L.divIcon({className:"pin big",   html:pinSvg(19,26), iconSize:[32,32], iconAnchor:[16,30], tooltipAnchor:[0,-29], popupAnchor:[0,-27]}),
   small: L.divIcon({className:"pin small", html:pinSvg(13,18), iconSize:[32,32], iconAnchor:[16,25], tooltipAnchor:[0,-20], popupAnchor:[0,-18]}),
 };
-// The default view is centred on the Pacific with the Americas in the right-hand copy of the world, so markers, country fills and state borders are drawn three times
-// (longitude -360 / 0 / +360) and show wherever the map is dragged. markers[id] returns the copy nearest the map centre.
+// Markers, country fills and state borders are drawn three times (longitude -360 / 0 / +360), so they show wherever the map is dragged
+// and flights split at 180° join up across the Pacific. markers[id] returns the copy nearest the map centre.
 const COPIES = [-360, 0, 360];
 const markerSets = {};
 const markers = new Proxy({}, {get:(_,id)=>{
@@ -652,29 +652,20 @@ function focusTransport(mode,id){
     r.hit.openPopup(r.mid);
   }).catch(()=>{});
 }
-// Default view (on load, refresh, or "All"): the Pacific in the middle, Iceland-ish on the left, the Americas on the right; free to drag afterwards
-// It frames every place, adding 360° to western longitudes so the Pacific sits in the middle with Europe left and the Americas right
-const placesBounds = () => L.latLngBounds(CITIES.map(c=>[c.lat, c.lng < -25 ? c.lng+360 : c.lng]));
+// Default view (on load, refresh, or "All"): the Americas, with the United States left of centre, Europe on the right and
+// South America in full; on phone widths (the CSS breakpoint) the Americas alone. Asia is a drag away: everything is drawn
+// in three world copies, and flights crossing 180° continue west across the Pacific.
+// Fixed geographic boxes, fitted to the window: any screen size frames the same area, and adding a place does not move it
+const HOME_WIDE = L.latLngBounds([-56,-126], [60,32]);     // Cape Horn to southern Scandinavia, US West Coast to the Black Sea
+const HOME_NARROW = L.latLngBounds([-56,-126], [60,-34]);  // the Americas only
+const narrowScreen = matchMedia("(max-width:760px)");
 function worldView(animate){
   worldViewShown = true;
   fitMinZoom();
   const size = map.getSize();
   if(!size.x || !size.y) return;                         // map still hidden (the photos page etc. was opened directly); resize runs this again once it shows
-  const b = placesBounds(), pad = 30, min = map.getMinZoom();
-  // if a full circle of longitude fits at minimum zoom (portrait phones, ultra-wide screens), stay there to show the whole world; otherwise frame every place
-  const zoom = size.x >= 256 * 2**min - 2 ? min : Math.max(min, map.getBoundsZoom(b, false, L.point(pad*2, pad*2)));
-  let center = b.getCenter();
-  // filling the height can leave the minimum zoom too close to fit every place (desktop widths, portrait tablets): then centre on the longitude that shows the most places
-  const span = (size.x - pad*2) * 360 / (256 * 2**zoom);                    // degrees of longitude visible across at this zoom
-  if(span < b.getEast() - b.getWest()){
-    const lngs = CITIES.map(c => c.lng < -25 ? c.lng+360 : c.lng);
-    let best = null;
-    for(let x = b.getWest(); x <= b.getEast(); x += 2){
-      const n = lngs.filter(l => Math.abs(l - x) <= span/2).length;
-      if(!best || n > best.n || (n === best.n && Math.abs(x - center.lng) < Math.abs(best.x - center.lng))) best = {x, n};
-    }
-    center = L.latLng(center.lat, best.x);
-  }
+  // fitBounds' own centre and zoom (projected midpoint, padding, never below the minimum zoom); exactly() keeps an unrounded minimum zoom as it is
+  let {center, zoom} = map._getBoundsCenterZoom(narrowScreen.matches ? HOME_NARROW : HOME_WIDE, {padding:[24,24]});
   center = map._limitCenter(center, zoom, LAT_BAND);                      // flyTo ignores maxBounds, so clamp to the latitude band first
   animate ? map.flyTo(center, zoom, {duration:1}) : exactly(() => map.setView(center, zoom, {animate:false}));
 }
